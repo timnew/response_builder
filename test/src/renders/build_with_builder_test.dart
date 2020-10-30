@@ -11,7 +11,7 @@ class TestWidget extends StatelessWidget with BuildWithBuilder {
   const TestWidget({Key key, this.builder, this.child}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => TestApp(
+  Widget build(BuildContext context) => TestBench(
         child: buildWithBuilder(context, builder, child),
       );
 }
@@ -23,7 +23,7 @@ class AnotherTestWidget extends StatelessWidget with BuildWithBuilderInLocalCont
   const AnotherTestWidget({Key key, this.builder, this.child}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => TestApp(
+  Widget build(BuildContext context) => TestBench(
         child: buildWithBuilder(builder, child),
       );
 }
@@ -37,7 +37,7 @@ void main() {
         ),
       );
 
-      findContent("data").shouldFindOne();
+      findContentWidget("data").shouldFindOne();
     });
 
     testWidgets("BuildWithBuilder should build with only child", (WidgetTester tester) async {
@@ -47,7 +47,7 @@ void main() {
         ),
       );
 
-      findContent("data").shouldFindOne();
+      findContentWidget("data").shouldFindOne();
     });
 
     testWidgets("BuildWithBuilder should build with both builder and child", (WidgetTester tester) async {
@@ -58,7 +58,7 @@ void main() {
         ),
       );
 
-      findContent("data").findAncestor<Container>().shouldFindOne();
+      findContentWidget("data").findAncestor<Container>().shouldFindOne();
     });
   });
 
@@ -70,7 +70,7 @@ void main() {
         ),
       );
 
-      findInTestScope.findChild<Builder>().findChildBy(findContent("data")).shouldFindOne();
+      findInTestScope.findChild<Builder>().findChildBy(findContentWidget("data")).shouldFindOne();
     });
 
     testWidgets("BuildWithBuilder should build with only child", (WidgetTester tester) async {
@@ -81,7 +81,7 @@ void main() {
       );
 
       findInTestScope.findChild<Builder>().shouldFindNone();
-      findInTestScope.findChildBy(findContent("data")).shouldFindOne();
+      findInTestScope.findChildBy(findContentWidget("data")).shouldFindOne();
     });
 
     testWidgets("BuildWithBuilder should build with both builder and child", (WidgetTester tester) async {
@@ -92,7 +92,7 @@ void main() {
         ),
       );
 
-      findInTestScope.findChild<Builder>().findChild<Container>().findChildBy(findContent("data")).shouldFindOne();
+      findInTestScope.findChild<Builder>().findChild<Container>().findChildBy(findContentWidget("data")).shouldFindOne();
     });
   });
 }

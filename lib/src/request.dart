@@ -42,7 +42,7 @@ abstract class Request<T> {
     return Result.value(value);
   }
 
-  ErrorResult putError(Object error, StackTrace stackTrace) {
+  ErrorResult putError(Object error, [StackTrace stackTrace]) {
     _subject.addError(error, stackTrace);
     return Result.error(error, stackTrace);
   }

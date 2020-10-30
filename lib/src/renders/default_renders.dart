@@ -29,13 +29,6 @@ class DefaultRenders {
 
   static Widget buildWaiting(BuildContext context) {
     if (_customWaitingBuilder != null) return _customWaitingBuilder(context);
-
     return Center(child: CircularProgressIndicator(value: null));
-  }
-
-  @visibleForTesting
-  static void clearForTest() {
-    _customErrorBuilder = null;
-    _customWaitingBuilder = null;
   }
 }

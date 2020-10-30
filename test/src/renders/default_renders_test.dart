@@ -10,12 +10,12 @@ class TestErrorWidget extends StatelessWidget {
   TestErrorWidget(this.error);
 
   @override
-  Widget build(BuildContext context) => TestApp(child: DefaultRenders.buildError(context, error));
+  Widget build(BuildContext context) => TestBench(child: DefaultRenders.buildError(context, error));
 }
 
 class TestWaitingWidget extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => TestApp(
+  Widget build(BuildContext context) => TestBench(
         child: DefaultRenders.buildWaiting(context),
       );
 }
@@ -34,7 +34,7 @@ void main() {
 
     await tester.pumpWidget(TestErrorWidget(error));
 
-    findError(error).shouldFindOne();
+    findErrorWidget(error).shouldFindOne();
   });
 
   testWidgets("build waiting with built in builder", (WidgetTester tester) async {
@@ -52,6 +52,7 @@ void main() {
   });
 
   tearDown(() {
-    DefaultRenders.clearForTest();
+    DefaultRenders.registerDefaultWaitingBuilder(null);
+    DefaultRenders.registerDefaultErrorBuilder(null);
   });
 }

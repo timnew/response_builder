@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:request_render/renders.dart';
 
 export 'finder_extension.dart';
 
-class TestApp extends StatelessWidget {
+class TestBench extends StatelessWidget {
   final Widget child;
 
-  TestApp({this.child});
+  TestBench({this.child});
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -28,6 +29,15 @@ class TestScope extends StatelessWidget {
 
 final findInTestScope = find.byType(TestScope);
 
+class InitialWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+final findInitialWidget = find.byType(InitialWidget);
+
 class EmptyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text("Empty");
@@ -46,9 +56,8 @@ class ErrorWidget extends StatelessWidget {
   }
 }
 
-final findErrorWidget = find.byType(ErrorWidget);
-
-Finder findError(Object error) => find.widgetWithText(ErrorWidget, "$error");
+Finder findErrorWidget([Object error]) =>
+    error == null ? find.byType(ErrorWidget) : find.widgetWithText(ErrorWidget, "$error");
 
 class WaitingWidget extends StatelessWidget {
   @override
@@ -57,7 +66,19 @@ class WaitingWidget extends StatelessWidget {
   }
 }
 
-final findWaiting = find.byType(WaitingWidget);
+final findWaitingWidget = find.byType(WaitingWidget);
+
+void useDefaultRenders() {
+  setUpAll(() {
+    DefaultRenders.registerDefaultWaitingBuilder((context) => WaitingWidget());
+    DefaultRenders.registerDefaultErrorBuilder((context, error) => ErrorWidget(error));
+  });
+
+  tearDownAll(() {
+    DefaultRenders.registerDefaultWaitingBuilder(null);
+    DefaultRenders.registerDefaultErrorBuilder(null);
+  });
+}
 
 class ContentWidget extends StatelessWidget {
   final String content;
@@ -75,6 +96,5 @@ class ContentWidget extends StatelessWidget {
   }
 }
 
-final findContentWidget = find.byType(ContentWidget);
-
-Finder findContent(String content) => find.widgetWithText(ContentWidget, content);
+Finder findContentWidget([String content]) =>
+    content == null ? find.byType(ContentWidget) : find.widgetWithText(ContentWidget, content);

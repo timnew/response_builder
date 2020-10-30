@@ -58,7 +58,7 @@ mixin RenderAsyncSnapshot<T> implements RenderAsyncResult<T> {
       StreamBuilder(key: key, stream: stream, builder: buildAsyncSnapshot, initialData: initialData);
 
   Widget buildRequest(Request<T> request, {Key key, T initialData}) =>
-      buildStream(request.valueStream, key: key, initialData: initialData);
+      buildStream(request?.valueStream, key: key, initialData: initialData);
 }
 
 mixin RenderValueListenable<T> implements RenderData<T> {
