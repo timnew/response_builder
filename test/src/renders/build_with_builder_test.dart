@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request_render/request_render.dart';
 
-import '../../dsl/test_widget.dart';
+import '../../test_tools//test_widget.dart';
 
 class TestWidget extends StatelessWidget with BuildWithBuilder {
   final TransitionBuilder builder;
@@ -92,7 +92,11 @@ void main() {
         ),
       );
 
-      findInTestScope.findChild<Builder>().findChild<Container>().findChildBy(findContentWidget("data")).shouldFindOne();
+      findInTestScope
+          .findChild<Builder>()
+          .findChild<Container>()
+          .findChildBy(findContentWidget("data"))
+          .shouldFindOne();
     });
   });
 }

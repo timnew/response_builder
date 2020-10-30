@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request_render/request_render.dart';
 
-import '../../dsl/test_widget.dart';
+import '../../test_tools/test_widget.dart';
 
 class TestFutureWidget extends StatelessWidget with RenderAsyncSnapshot<String> {
   final Future<String> future;

@@ -15,22 +15,22 @@ class ResultStore<T> {
 
   Result<T> get result => _notifier.value;
 
-  bool get isValue => result.isValue;
+  bool get hasValue => result.isValue;
 
-  bool get isError => result.isError;
+  bool get hasError => result.isError;
 
   T get value {
-    if (isError) throw StateError("Use ErrorResult as ValueResult");
+    if (!hasValue) throw StateError("Expect a value but got an error");
     return result.asValue.value;
   }
 
   Object get error {
-    if (isValue) throw StateError("Use ValueResult as ErrorResult");
+    if (!hasError) throw StateError("Expect an error but got an value");
     return result.asError.error;
   }
 
   StackTrace get stackTrace {
-    if (isValue) throw StateError("Use ValueResult as ErrorResult");
+    if (!hasError) throw StateError("Expect an error but got an value");
     return result.asError.stackTrace;
   }
 
@@ -44,13 +44,13 @@ class ResultStore<T> {
   }
 
   T updateValue(ValueUpdater<T> updater) {
-    if (isError) return null;
+    if (hasError) return null;
 
     return putValue(updater(value));
   }
 
   T fixError(ErrorFixer<T> fixer) {
-    if (isValue) return value;
+    if (hasValue) return value;
 
     return putValue(fixer(error));
   }

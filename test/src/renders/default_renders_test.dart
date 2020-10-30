@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request_render/renders.dart';
 
-import '../../dsl/test_widget.dart';
+import '../../test_tools/test_widget.dart';
 
 class TestErrorWidget extends StatelessWidget {
   final Object error;

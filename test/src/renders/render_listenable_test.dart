@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request_render/request_render.dart';
 
-import '../../dsl/test_widget.dart';
+import '../../test_tools/test_widget.dart';
 
 class TestValueWidget extends StatelessWidget with RenderValueListenable<String> {
   final ValueListenable<String> listenable;
