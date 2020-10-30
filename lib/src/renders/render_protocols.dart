@@ -1,12 +1,11 @@
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:request_render/src/request.dart';
+import 'package:request_render/src/result_store.dart';
 
 import 'default_renders.dart';
-import '../result_store.dart';
-
-export 'data_widget_builder.dart';
 
 mixin RenderData<T> {
   Widget buildData(BuildContext context, T data);

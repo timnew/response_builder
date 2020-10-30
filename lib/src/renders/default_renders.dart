@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'data_widget_builder.dart';
+typedef DataWidgetBuilder<T> = Widget Function(BuildContext context, T data);
 
 class DefaultRenders {
   static DataWidgetBuilder<Object> _customErrorBuilder;

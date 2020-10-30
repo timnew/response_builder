@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'render_mixins.dart';
+import 'render_protocols.dart';
 
 mixin WithEmptyContent<T> implements RenderData<T> {
   bool checkEmpty(T data);
