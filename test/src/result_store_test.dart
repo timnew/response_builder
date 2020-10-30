@@ -60,14 +60,16 @@ void main() {
       final store = ResultStore<String>(value);
       final tester = ValueListenableTester(store.listenable);
 
-      final updateResult = store.updateValue((current) => "new $current}");
+      final updateResult = store.updateValue((current) => "new $current");
       expect(tester.changeCount, 1);
       expect(updateResult, "new value");
       expect(tester.lastChange.asValue.value, "new value");
 
       store.putError(error);
-      final ignoredResult = store.updateValue((current) => "new $current}");
-      expect(tester.lastChange, 1);
+      expect(tester.changeCount, 2);
+
+      final ignoredResult = store.updateValue((current) => "new $current");
+      expect(tester.changeCount, 2);
       expect(ignoredResult, isNull);
     });
 
@@ -86,7 +88,7 @@ void main() {
 
       final ignoredResult = store.fixError((error) => "fixed again");
       expect(tester.changeCount, 1);
-      expect(ignoredResult, isNull);
+      expect(ignoredResult, "fixed");
     });
   });
 }
