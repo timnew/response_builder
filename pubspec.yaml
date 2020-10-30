@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   rxdart: ^0.25.0-beta3
+  async: ^2.4.2
 
 dev_dependencies:
   flutter_test:
