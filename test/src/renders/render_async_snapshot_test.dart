@@ -117,7 +117,6 @@ void main() {
       await tester.runAsync(() async {
         request.markAsWaiting();
       });
-      await tester.idle();
       await tester.pump();
 
       findInitialWidget.shouldFindNone();
@@ -129,7 +128,6 @@ void main() {
       await tester.runAsync(() async {
         request.putValue("data");
       });
-      await tester.idle();
       await tester.pump();
 
       findInitialWidget.shouldFindNone();
@@ -140,7 +138,6 @@ void main() {
       await tester.runAsync(() async {
         request.markAsWaiting();
       });
-      await tester.idle();
       await tester.pump();
 
       findInitialWidget.shouldFindNone();
@@ -152,8 +149,6 @@ void main() {
       await tester.runAsync(() async {
         request.putError("error");
       });
-
-      await tester.idle();
       await tester.pump();
 
       findInitialWidget.shouldFindNone();
