@@ -60,7 +60,7 @@ void main() {
   });
 
   test("throw error when access not registered type", () {
-    expect(() => SingletonRegistry.get<TestSingleton>(), throwsA(isA<StateError>()));
+    expect(() => SingletonRegistry.get<TestSingleton>(), throwsStateError);
   });
 
   tearDown(() {

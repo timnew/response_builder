@@ -18,8 +18,8 @@ void main() {
       expect(store.value, equals(value));
 
       expect(store.hasError, isFalse);
-      expect(() => store.error, throwsA(isA<StateError>()));
-      expect(() => store.stackTrace, throwsA(isA<StateError>()));
+      expect(() => store.error, throwsStateError);
+      expect(() => store.stackTrace, throwsStateError);
 
       expect(store.result, isA<ValueResult<String>>());
       expect(store.result.asValue.value, equals(value));
@@ -29,7 +29,7 @@ void main() {
       final store = ResultStore<String>.error(error, stackTrace);
 
       expect(store.hasValue, isFalse);
-      expect(() => store.value, throwsA(isA<StateError>()));
+      expect(() => store.value, throwsStateError);
 
       expect(store.hasError, isTrue);
       expect(store.error, equals(error));

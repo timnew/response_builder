@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:async/async.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'mapper_types.dart';
@@ -22,29 +21,27 @@ abstract class Request<T> {
 
   FutureOr<T> load();
 
-  Future<Result<T>> reload({quiet: false}) async => await execute(load(), quiet: quiet);
+  Future reload({quiet: false}) async => await execute(load(), quiet: quiet);
 
-  Future<Result<T>> execute(FutureOr<T> value, {quiet: false}) async {
+  Future execute(FutureOr<T> value, {quiet: false}) async {
     if (!quiet && value is Future) markAsWaiting();
 
     try {
-      final result = await value;
-      return putValue(result);
+      final result = value is Future ? await value : value;
+      putValue(result);
     } on Exception catch (error, stackTrace) {
-      return putError(error, stackTrace);
+      putError(error, stackTrace);
     } catch (error) {
       rethrow;
     }
   }
 
-  ValueResult<T> putValue(T value) {
+  void putValue(T value) {
     _subject.add(value);
-    return Result.value(value);
   }
 
-  ErrorResult putError(Object error, [StackTrace stackTrace]) {
+  void putError(Object error, [StackTrace stackTrace]) {
     _subject.addError(error, stackTrace);
-    return Result.error(error, stackTrace);
   }
 
   void markAsWaiting() {
@@ -58,7 +55,7 @@ abstract class Request<T> {
   T get currentData => _subject.value;
 
   T get ensuredCurrentData {
-    assert(hasData, "Access data when it is not yet available");
+    if (!hasData) throw StateError("Access data when it is not yet available");
     return currentData;
   }
 
@@ -66,23 +63,23 @@ abstract class Request<T> {
 
   Object get currentError => _subject.error;
 
-  StackTrace get currentErrorStackTrace => null; //_subject.errorStackTrace; // NOT EXPOSED YET
+  StackTrace get currentErrorStackTrace => null; // NOT EXPOSED YET
 
   bool get hasCurrent => hasData || hasError;
 
   Future<T> get firstValue => valueStream.firstWhere((result) => result != null);
 
-  Result<T> safeUpdate(ValueUpdater<T> updater) {
+  void updateValue(ValueUpdater<T> updater) {
     try {
-      return putValue(updater(currentData));
+      putValue(updater(ensuredCurrentData));
     } on Exception catch (error, stacktrace) {
-      return putError(error, stacktrace);
+      putError(error, stacktrace);
     } catch (error) {
       rethrow;
     }
   }
 
-  Future<Result<T>> safeUpdateAsync(AsyncValueUpdater<T> updater, {quiet: false}) {
-    return execute(updater(currentData), quiet: quiet);
+  Future updateValueAsync(AsyncValueUpdater<T> updater, {quiet: false}) {
+    return execute(updater(ensuredCurrentData), quiet: quiet);
   }
 }
