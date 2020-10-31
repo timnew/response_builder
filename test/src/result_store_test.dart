@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:async/async.dart';
 
-import 'package:request_render/request_render.dart';
+import 'package:response_builder/response_builder.dart';
 
 import '../test_tools/listenable_tester.dart';
 

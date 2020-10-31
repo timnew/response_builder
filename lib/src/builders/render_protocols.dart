@@ -2,8 +2,8 @@ import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:request_render/src/request.dart';
-import 'package:request_render/src/result_store.dart';
+import 'package:response_builder/src/request.dart';
+import 'package:response_builder/src/result_store.dart';
 
 import 'default_renders.dart';
 

@@ -1,6 +1,6 @@
-library request_render;
+library response_builder;
 
-export 'renders.dart';
+export 'builder_only.dart';
 export 'src/request.dart';
 export 'src/result_store.dart';
 export 'src/singleton_registry.dart';

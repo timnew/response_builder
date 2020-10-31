@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:request_render/renders.dart';
+import 'package:response_builder/builder_only.dart';
 
 import '../../test_tools/test_widget.dart';
 
