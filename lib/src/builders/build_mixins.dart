@@ -5,30 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:response_builder/src/request.dart';
 import 'package:response_builder/src/result_store.dart';
 
-import 'default_renders.dart';
+import 'default_build_actions.dart';
 
-mixin RenderData<T> {
+mixin BuildData<T> {
   Widget buildData(BuildContext context, T data);
 }
 
-mixin RenderResult<T> implements RenderData<T> {
-  Widget buildError(BuildContext context, Object error) => DefaultRenders.buildError(context, error);
+mixin BuildResult<T> implements BuildData<T> {
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 }
 
-mixin RenderAsyncResult<T> implements RenderResult<T> {
+mixin BuildAsyncResultProtocol<T> implements BuildResult<T> {
   Widget buildInitialState(BuildContext context) => buildWaiting(context);
 
-  Widget buildWaiting(BuildContext context) => DefaultRenders.buildWaiting(context);
+  Widget buildWaiting(BuildContext context) => DefaultBuildActions.buildWaiting(context);
 
-  Widget buildError(BuildContext context, Object error) => DefaultRenders.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 }
 
-mixin RenderAsyncSnapshot<T> implements RenderAsyncResult<T> {
+mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
   Widget buildInitialState(BuildContext context) => buildWaiting(context);
 
-  Widget buildWaiting(BuildContext context) => DefaultRenders.buildWaiting(context);
+  Widget buildWaiting(BuildContext context) => DefaultBuildActions.buildWaiting(context);
 
-  Widget buildError(BuildContext context, Object error) => DefaultRenders.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 
   Widget buildAsyncSnapshot(BuildContext context, AsyncSnapshot<T> snapshot) {
     if (snapshot.hasError) return buildError(context, snapshot.error);
@@ -60,7 +60,7 @@ mixin RenderAsyncSnapshot<T> implements RenderAsyncResult<T> {
       buildStream(request?.valueStream, key: key, initialData: initialData);
 }
 
-mixin RenderValueListenable<T> implements RenderData<T> {
+mixin BuildValueListenable<T> implements BuildData<T> {
   Widget buildValueListenable(ValueListenable<T> listenable, {Key key}) => ValueListenableBuilder(
         key: key,
         valueListenable: listenable,
@@ -68,8 +68,8 @@ mixin RenderValueListenable<T> implements RenderData<T> {
       );
 }
 
-mixin RenderResultListenable<T> implements RenderResult<T> {
-  Widget buildError(BuildContext context, Object error) => DefaultRenders.buildError(context, error);
+mixin BuildResultListenable<T> implements BuildResult<T> {
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 
   Widget buildResultListenable(ValueListenable<Result<T>> listenable, {Key key}) => ValueListenableBuilder(
         key: key,

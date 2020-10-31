@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
 
-import 'mapper_types.dart';
-export 'mapper_types.dart';
+import 'update_actions.dart';
+export 'update_actions.dart';
 
 abstract class Request<T> {
   final BehaviorSubject<T> _subject;

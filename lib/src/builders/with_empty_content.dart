@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'render_protocols.dart';
+import 'build_mixins.dart';
 
-mixin WithEmptyContent<T> implements RenderData<T> {
+mixin WithEmptyContent<T> implements BuildData<T> {
   bool checkEmpty(T data);
 
   Widget buildContent(BuildContext context, T content);

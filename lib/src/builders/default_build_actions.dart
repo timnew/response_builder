@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 typedef DataWidgetBuilder<T> = Widget Function(BuildContext context, T data);
 
-class DefaultRenders {
+class DefaultBuildActions {
   static DataWidgetBuilder<Object> _customErrorBuilder;
   static WidgetBuilder _customWaitingBuilder;
 

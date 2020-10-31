@@ -5,7 +5,7 @@ import 'package:response_builder/response_builder.dart';
 
 import '../../test_tools/test_widget.dart';
 
-class TestValueWidget extends StatelessWidget with RenderValueListenable<String> {
+class TestValueWidget extends StatelessWidget with BuildValueListenable<String> {
   final ValueListenable<String> listenable;
 
   TestValueWidget(this.listenable);
@@ -17,7 +17,7 @@ class TestValueWidget extends StatelessWidget with RenderValueListenable<String>
   Widget buildData(BuildContext context, String data) => ContentWidget(data);
 }
 
-class TestResultWidget extends StatelessWidget with RenderResultListenable<String> {
+class TestResultWidget extends StatelessWidget with BuildResultListenable<String> {
   final ResultStore<String> store;
 
   const TestResultWidget(this.store);
@@ -30,8 +30,8 @@ class TestResultWidget extends StatelessWidget with RenderResultListenable<Strin
 }
 
 void main() {
-  group("RenderValueListenable", () {
-    testWidgets("render value listenable", (WidgetTester tester) async {
+  group("BuildValueListenable", () {
+    testWidgets("build value listenable", (WidgetTester tester) async {
       final notifier = ValueNotifier<String>("data");
 
       await tester.pumpWidget(TestValueWidget(notifier));
@@ -46,10 +46,10 @@ void main() {
     });
   });
 
-  group("RenderResultListenable", () {
+  group("BuildResultListenable", () {
     useDefaultRenders();
 
-    testWidgets("render value", (WidgetTester tester) async {
+    testWidgets("build value", (WidgetTester tester) async {
       final store = ResultStore<String>("data");
 
       await tester.pumpWidget(TestResultWidget(store));
@@ -62,7 +62,7 @@ void main() {
       findContentWidget("new data").shouldFindOne();
     });
 
-    testWidgets("render error", (WidgetTester tester) async {
+    testWidgets("build error", (WidgetTester tester) async {
       final store = ResultStore<String>("data");
 
       await tester.pumpWidget(TestResultWidget(store));

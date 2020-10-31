@@ -26,7 +26,7 @@ class TestWidget extends StatelessWidget with WithEmptyContent<String> {
   bool checkEmpty(String data) => data.isEmpty;
 }
 
-class TestFutureWithEmptyWidget extends StatelessWidget with RenderAsyncSnapshot<String>, WithEmptyContent<String> {
+class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<String>, WithEmptyContent<String> {
   final completer = Completer<String>();
 
   @override
@@ -47,75 +47,77 @@ class TestFutureWithEmptyWidget extends StatelessWidget with RenderAsyncSnapshot
 void main() {
   useDefaultRenders();
 
-  group("Direct usage", () {
-    testWidgets("Render content", (WidgetTester tester) async {
-      await tester.pumpWidget(TestWidget("data"));
+  group("WithEmptyContent", () {
+    group("direct use", () {
+      testWidgets("Render content", (WidgetTester tester) async {
+        await tester.pumpWidget(TestWidget("data"));
 
-      findContentWidget("data").shouldFindOne();
-      findEmptyWidget.shouldFindNone();
+        findContentWidget("data").shouldFindOne();
+        findEmptyWidget.shouldFindNone();
+      });
+
+      testWidgets("Render empty", (WidgetTester tester) async {
+        await tester.pumpWidget(TestWidget(""));
+
+        findContentWidget().shouldFindNone();
+        findEmptyWidget.shouldFindOne();
+      });
     });
 
-    testWidgets("Render empty", (WidgetTester tester) async {
-      await tester.pumpWidget(TestWidget(""));
+    group("with BuildAsyncResult", () {
+      testWidgets("Render content", (WidgetTester tester) async {
+        final widget = TestFutureWithEmptyWidget();
+        await tester.pumpWidget(widget);
 
-      findContentWidget().shouldFindNone();
-      findEmptyWidget.shouldFindOne();
-    });
-  });
+        findWaitingWidget.shouldFindOne();
+        findContentWidget().shouldFindNone();
+        findEmptyWidget.shouldFindNone();
+        findErrorWidget().shouldFindNone();
 
-  group("with RenderAsyncSnapshot", () {
-    testWidgets("Render content", (WidgetTester tester) async {
-      final widget = TestFutureWithEmptyWidget();
-      await tester.pumpWidget(widget);
+        widget.completer.complete("data");
+        await tester.pump();
 
-      findWaitingWidget.shouldFindOne();
-      findContentWidget().shouldFindNone();
-      findEmptyWidget.shouldFindNone();
-      findErrorWidget().shouldFindNone();
+        findWaitingWidget.shouldFindNone();
+        findContentWidget("data").shouldFindOne();
+        findEmptyWidget.shouldFindNone();
+        findErrorWidget().shouldFindNone();
+      });
 
-      widget.completer.complete("data");
-      await tester.pump();
+      testWidgets("Render empty", (WidgetTester tester) async {
+        final widget = TestFutureWithEmptyWidget();
+        await tester.pumpWidget(widget);
 
-      findWaitingWidget.shouldFindNone();
-      findContentWidget("data").shouldFindOne();
-      findEmptyWidget.shouldFindNone();
-      findErrorWidget().shouldFindNone();
-    });
+        findWaitingWidget.shouldFindOne();
+        findContentWidget().shouldFindNone();
+        findEmptyWidget.shouldFindNone();
+        findErrorWidget().shouldFindNone();
 
-    testWidgets("Render empty", (WidgetTester tester) async {
-      final widget = TestFutureWithEmptyWidget();
-      await tester.pumpWidget(widget);
+        widget.completer.complete("");
+        await tester.pump();
 
-      findWaitingWidget.shouldFindOne();
-      findContentWidget().shouldFindNone();
-      findEmptyWidget.shouldFindNone();
-      findErrorWidget().shouldFindNone();
+        findWaitingWidget.shouldFindNone();
+        findContentWidget().shouldFindNone();
+        findEmptyWidget.shouldFindOne();
+        findErrorWidget().shouldFindNone();
+      });
 
-      widget.completer.complete("");
-      await tester.pump();
+      testWidgets("Render error", (WidgetTester tester) async {
+        final widget = TestFutureWithEmptyWidget();
+        await tester.pumpWidget(widget);
 
-      findWaitingWidget.shouldFindNone();
-      findContentWidget().shouldFindNone();
-      findEmptyWidget.shouldFindOne();
-      findErrorWidget().shouldFindNone();
-    });
+        findWaitingWidget.shouldFindOne();
+        findContentWidget().shouldFindNone();
+        findEmptyWidget.shouldFindNone();
+        findErrorWidget().shouldFindNone();
 
-    testWidgets("Render error", (WidgetTester tester) async {
-      final widget = TestFutureWithEmptyWidget();
-      await tester.pumpWidget(widget);
+        widget.completer.completeError("error");
+        await tester.pump();
 
-      findWaitingWidget.shouldFindOne();
-      findContentWidget().shouldFindNone();
-      findEmptyWidget.shouldFindNone();
-      findErrorWidget().shouldFindNone();
-
-      widget.completer.completeError("error");
-      await tester.pump();
-
-      findWaitingWidget.shouldFindNone();
-      findContentWidget().shouldFindNone();
-      findEmptyWidget.shouldFindNone();
-      findErrorWidget("error").shouldFindOne();
+        findWaitingWidget.shouldFindNone();
+        findContentWidget().shouldFindNone();
+        findEmptyWidget.shouldFindNone();
+        findErrorWidget("error").shouldFindOne();
+      });
     });
   });
 }

@@ -1,8 +1,8 @@
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 
-import 'mapper_types.dart';
-export 'mapper_types.dart';
+import 'update_actions.dart';
+export 'update_actions.dart';
 
 class ResultStore<T> {
   final ValueNotifier<Result<T>> _notifier;
