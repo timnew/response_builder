@@ -20,10 +20,10 @@ class TestWidget extends StatelessWidget with WithEmptyContent<String> {
   Widget buildContent(BuildContext context, String content) => ContentWidget(content);
 
   @override
-  Widget buildEmpty(BuildContext context) => EmptyWidget();
+  Widget buildEmpty(BuildContext context, String emptyContent) => EmptyWidget();
 
   @override
-  bool checkEmpty(String data) => data.isEmpty;
+  bool checkIsDataEmpty(String data) => data.isEmpty;
 }
 
 class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<String>, WithEmptyContent<String> {
@@ -38,10 +38,24 @@ class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<St
   Widget buildContent(BuildContext context, String content) => ContentWidget(content);
 
   @override
-  Widget buildEmpty(BuildContext context) => EmptyWidget();
+  Widget buildEmpty(BuildContext context, String emptyContent) => EmptyWidget();
 
   @override
-  bool checkEmpty(String data) => data.isEmpty;
+  bool checkIsDataEmpty(String data) => data.isEmpty;
+}
+
+class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyContent<T> {
+  final T data;
+
+  const DefaultBehaviorWidget(this.data);
+
+  @override
+  Widget build(BuildContext context) => TestBench(
+        child: buildData(context, data),
+      );
+
+  @override
+  Widget buildContent(BuildContext context, T content) => ContentWidget(content.toString());
 }
 
 void main() {
@@ -53,13 +67,13 @@ void main() {
         await tester.pumpWidget(TestWidget("data"));
 
         findContentWidget("data").shouldFindOne();
-        findEmptyWidget.shouldFindNone();
+        findEmptyWidget.shouldFindNothing();
       });
 
       testWidgets("Render empty", (WidgetTester tester) async {
         await tester.pumpWidget(TestWidget(""));
 
-        findContentWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
         findEmptyWidget.shouldFindOne();
       });
     });
@@ -70,17 +84,17 @@ void main() {
         await tester.pumpWidget(widget);
 
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findEmptyWidget.shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findEmptyWidget.shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         widget.completer.complete("data");
         await tester.pump();
 
-        findWaitingWidget.shouldFindNone();
+        findWaitingWidget.shouldFindNothing();
         findContentWidget("data").shouldFindOne();
-        findEmptyWidget.shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findEmptyWidget.shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
       });
 
       testWidgets("Render empty", (WidgetTester tester) async {
@@ -88,17 +102,17 @@ void main() {
         await tester.pumpWidget(widget);
 
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findEmptyWidget.shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findEmptyWidget.shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         widget.completer.complete("");
         await tester.pump();
 
-        findWaitingWidget.shouldFindNone();
-        findContentWidget().shouldFindNone();
+        findWaitingWidget.shouldFindNothing();
+        findContentWidget().shouldFindNothing();
         findEmptyWidget.shouldFindOne();
-        findErrorWidget().shouldFindNone();
+        findErrorWidget().shouldFindNothing();
       });
 
       testWidgets("Render error", (WidgetTester tester) async {
@@ -106,18 +120,106 @@ void main() {
         await tester.pumpWidget(widget);
 
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findEmptyWidget.shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findEmptyWidget.shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         widget.completer.completeError("error");
         await tester.pump();
 
-        findWaitingWidget.shouldFindNone();
-        findContentWidget().shouldFindNone();
-        findEmptyWidget.shouldFindNone();
+        findWaitingWidget.shouldFindNothing();
+        findContentWidget().shouldFindNothing();
+        findEmptyWidget.shouldFindNothing();
         findErrorWidget("error").shouldFindOne();
       });
+    });
+
+    group("default behavior", () {
+      group("list", () {
+        testWidgets("Render content", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget(["data"]));
+
+          findContentWidget("[data]").shouldFindOne();
+          findInTestScope.findChild<Container>().shouldFindNothing();
+        });
+
+        testWidgets("Render empty", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget([]));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+
+        testWidgets("Render null", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget<List>(null));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+      });
+
+      group("map", () {
+        testWidgets("Render content", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget({"key": "data"}));
+
+          findContentWidget("{key: data}").shouldFindOne();
+          findInTestScope.findChild<Container>().shouldFindNothing();
+        });
+
+        testWidgets("Render empty", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget({}));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+
+        testWidgets("Render null", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget<Map>(null));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+      });
+
+      group("set", () {
+        testWidgets("Render content", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget(Set.of(["data"])));
+
+          findContentWidget("{data}").shouldFindOne();
+          findInTestScope.findChild<Container>().shouldFindNothing();
+        });
+
+        testWidgets("Render empty", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget(Set.of([])));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+
+        testWidgets("Render null", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget<Set>(null));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+      });
+
+      group("unsupported", () {
+        testWidgets("Render content", (WidgetTester tester) async {
+          expect(() async => await tester.pumpWidget(DefaultBehaviorWidget("data")), throwsUnsupportedError);
+        }, skip: true);
+
+        testWidgets("Render empty", (WidgetTester tester) async {
+          expect(() async => await tester.pumpWidget(DefaultBehaviorWidget("")), throwsUnsupportedError);
+        }, skip: true);
+
+        testWidgets("Render null", (WidgetTester tester) async {
+          await tester.pumpWidget(DefaultBehaviorWidget<String>(null));
+
+          findContentWidget().shouldFindNothing();
+          findInTestScope.findChild<Container>().shouldFindOne();
+        });
+      }, skip: "error is thrown in build phrase, which is caught by future of pumpWidget");
     });
   });
 }

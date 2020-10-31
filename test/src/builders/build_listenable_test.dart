@@ -68,19 +68,19 @@ void main() {
       await tester.pumpWidget(TestResultWidget(store));
 
       findContentWidget("data").shouldFindOne();
-      findErrorWidget().shouldFindNone();
+      findErrorWidget().shouldFindNothing();
 
       store.putError("error");
       await tester.pump();
 
-      findContentWidget().shouldFindNone();
+      findContentWidget().shouldFindNothing();
       findErrorWidget("error").shouldFindOne();
 
       store.putValue("new data");
       await tester.pump();
 
       findContentWidget("new data").shouldFindOne();
-      findErrorWidget().shouldFindNone();
+      findErrorWidget().shouldFindNothing();
     });
   });
 }

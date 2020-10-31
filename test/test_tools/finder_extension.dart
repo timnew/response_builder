@@ -18,7 +18,7 @@ extension AssertionExtension on Finder {
   }) =>
       should(findsOneWidget, reason: reason, skip: skip);
 
-  Finder shouldFindNone({
+  Finder shouldFindNothing({
     String reason,
     dynamic skip, // true or a String
   }) =>

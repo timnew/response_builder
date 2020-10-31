@@ -59,18 +59,18 @@ void main() {
 
         await tester.pumpWidget(TestFutureWidget(completer.future));
 
-        findInitialWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         completer.complete("data");
         await tester.pump();
 
-        findInitialWidget.shouldFindNone();
-        findWaitingWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
+        findWaitingWidget.shouldFindNothing();
         findContentWidget("data").shouldFindOne();
-        findErrorWidget().shouldFindNone();
+        findErrorWidget().shouldFindNothing();
       });
 
       testWidgets("build future error", (WidgetTester tester) async {
@@ -78,17 +78,17 @@ void main() {
 
         await tester.pumpWidget(TestFutureWidget(completer.future));
 
-        findInitialWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         completer.completeError("error");
         await tester.pump();
 
-        findInitialWidget.shouldFindNone();
-        findWaitingWidget.shouldFindNone();
-        findContentWidget().shouldFindNone();
+        findInitialWidget.shouldFindNothing();
+        findWaitingWidget.shouldFindNothing();
+        findContentWidget().shouldFindNothing();
         findErrorWidget("error").shouldFindOne();
       });
 
@@ -96,9 +96,9 @@ void main() {
         await tester.pumpWidget(TestFutureWidget(null));
 
         findInitialWidget.shouldFindOne();
-        findWaitingWidget.shouldFindNone();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findWaitingWidget.shouldFindNothing();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
       });
     });
 
@@ -109,10 +109,10 @@ void main() {
         // initialize
         await tester.pumpWidget(TestRequestWidget(request));
 
-        findInitialWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         // loading
         await tester.runAsync(() async {
@@ -120,10 +120,10 @@ void main() {
         });
         await tester.pump();
 
-        findInitialWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         // fetch data
         await tester.runAsync(() async {
@@ -131,20 +131,20 @@ void main() {
         });
         await tester.pump();
 
-        findInitialWidget.shouldFindNone();
-        findWaitingWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
+        findWaitingWidget.shouldFindNothing();
         findContentWidget("data").shouldFindOne();
-        findErrorWidget().shouldFindNone();
+        findErrorWidget().shouldFindNothing();
 
         await tester.runAsync(() async {
           request.markAsWaiting();
         });
         await tester.pump();
 
-        findInitialWidget.shouldFindNone();
+        findInitialWidget.shouldFindNothing();
         findWaitingWidget.shouldFindOne();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
 
         // error returned
         await tester.runAsync(() async {
@@ -152,9 +152,9 @@ void main() {
         });
         await tester.pump();
 
-        findInitialWidget.shouldFindNone();
-        findWaitingWidget.shouldFindNone();
-        findContentWidget().shouldFindNone();
+        findInitialWidget.shouldFindNothing();
+        findWaitingWidget.shouldFindNothing();
+        findContentWidget().shouldFindNothing();
         findErrorWidget("error").shouldFindOne();
       });
 
@@ -163,9 +163,9 @@ void main() {
         await tester.pumpWidget(TestRequestWidget(null));
 
         findInitialWidget.shouldFindOne();
-        findWaitingWidget.shouldFindNone();
-        findContentWidget().shouldFindNone();
-        findErrorWidget().shouldFindNone();
+        findWaitingWidget.shouldFindNothing();
+        findContentWidget().shouldFindNothing();
+        findErrorWidget().shouldFindNothing();
       });
     });
   });

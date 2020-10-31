@@ -80,7 +80,7 @@ void main() {
         ),
       );
 
-      findInTestScope.findChild<Builder>().shouldFindNone();
+      findInTestScope.findChild<Builder>().shouldFindNothing();
       findInTestScope.findChildBy(findContentWidget("data")).shouldFindOne();
     });
 
