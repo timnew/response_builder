@@ -19,9 +19,7 @@ It enables flutter developer to implement following features with minimum effort
 * **Refresh/Retry**: Fire the same request again when something goes wrong or just want to refresh the data
 * **Optimal update**: update the UI optimally first, and refresh UI again when API returns.
 
-## Getting Start
-
-### Consume data from Future/Stream
+## Consume data from Future/Stream
 
 To consume data from Future/Stream with `response_builder` library is very easy:
 1. Create a stateless/stateful widget
@@ -64,7 +62,7 @@ With the code above, you will get:
 * Render a loading screen automatically before the data is ready
 * Render a error screen automatically before if data source yields error
 
-### Customize Error Screen / Loading Screen by overriding
+## Customize Error Screen / Loading Screen by overriding
 
 You might want to customize the error screen / loading screen, which is also very easy:
 
@@ -119,7 +117,7 @@ class MyWidget extends StatelessWidget with BuildAsyncResult<String> {
 }
 ```
 
-### Customize default Error Screen / Loading Screen build actions
+## Customize default Error Screen / Loading Screen build actions
 
 Sometimes the default error screen/loading screen might not suits your app, such as you're using `CuptertinoApp` instead of `MaterialApp`, but override `buildWaiting` and `buildError` in every widget uses `BuildAsyncResult` could be a tedious and heavy task. Luckily, you actually don't need to do that.
 
@@ -150,13 +148,11 @@ DefaultBuildActions.registerDefaultErrorBuilder((context, error) {
 
 **HINT:** Register default builder with `DefaultBuildActions` will only impact those widgets uses `BuildAsyncResult` without overriding `buildError` or `buildWaiting`. Customized override will be respected
 
-
-### Handle empty data
+## Handle empty data
 
 Sometimes our API returns successfully without error, but it gives empty result, such as user doing a search with typos in keywords which leads to nothing. And also if you render the UI with `ListView` or other collection widgets, which unfortunately doesn't support to build empty list.
 
 `response_builder` provided `WithEmptyData<T>` mixin to tackle this issue, what's more is `WithEmptyData<T>` is aware of the contracts from `BuildAsyncResult<T>` or other builder mixins, so it just work together automatically without any additional effort.
-
 
 ```dart
 class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
@@ -185,7 +181,7 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
 }
 ```
 
-### Customize Empty Screen for `WithEmptyData`
+## Customize Empty Screen for `WithEmptyData`
 
 By Default, `WithEmptyData` renders an empty `Container` when empty data is received, so it looks like an blank screen from user's perspective, while `ListView` would complain if you feed it with an empty list.
 
@@ -226,7 +222,7 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
 }
 ```
 
-### Handle empty data model in `WithEmptyData`
+## Handle empty data model in `WithEmptyData`
 
 By default `WithEmptyData` is smart enough to understand the common data types:
 
@@ -270,10 +266,6 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
   }
 }
 ```
-
-## Request & ResultValueStore
-
-WIP
 
 ### Request
 
