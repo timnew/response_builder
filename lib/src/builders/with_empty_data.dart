@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'build_mixins.dart';
 
-mixin WithEmptyContent<T> implements BuildData<T> {
+mixin WithEmptyData<T> implements BuildData<T> {
   bool checkIsDataEmpty(T data) {
     if (data == null) return true;
     if (data is Iterable) return data.isEmpty;

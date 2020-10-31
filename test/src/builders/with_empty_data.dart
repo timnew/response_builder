@@ -6,7 +6,7 @@ import 'package:response_builder/response_builder.dart';
 
 import '../../test_tools/test_widget.dart';
 
-class TestWidget extends StatelessWidget with WithEmptyContent<String> {
+class TestWidget extends StatelessWidget with WithEmptyData<String> {
   final String content;
 
   const TestWidget(this.content);
@@ -26,7 +26,7 @@ class TestWidget extends StatelessWidget with WithEmptyContent<String> {
   bool checkIsDataEmpty(String data) => data.isEmpty;
 }
 
-class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<String>, WithEmptyContent<String> {
+class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<String>, WithEmptyData<String> {
   final completer = Completer<String>();
 
   @override
@@ -44,7 +44,7 @@ class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<St
   bool checkIsDataEmpty(String data) => data.isEmpty;
 }
 
-class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyContent<T> {
+class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyData<T> {
   final T data;
 
   const DefaultBehaviorWidget(this.data);
@@ -61,7 +61,7 @@ class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyContent<T> 
 void main() {
   useDefaultRenders();
 
-  group("WithEmptyContent", () {
+  group("WithEmptyData", () {
     group("direct use", () {
       testWidgets("Render content", (WidgetTester tester) async {
         await tester.pumpWidget(TestWidget("data"));

@@ -7,6 +7,7 @@ import 'package:response_builder/src/result_store.dart';
 
 import 'default_build_actions.dart';
 
+
 mixin BuildData<T> {
   Widget buildData(BuildContext context, T data);
 }
