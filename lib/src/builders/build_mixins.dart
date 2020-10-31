@@ -57,7 +57,7 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
       StreamBuilder(key: key, stream: stream, builder: buildAsyncSnapshot, initialData: initialData);
 
   Widget buildRequest(Request<T> request, {Key key, T initialData}) =>
-      buildStream(request?.valueStream, key: key, initialData: initialData);
+      buildStream(request?.resultStream, key: key, initialData: initialData);
 }
 
 mixin BuildValueListenable<T> implements BuildData<T> {

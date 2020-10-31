@@ -8,7 +8,7 @@ export 'update_actions.dart';
 abstract class Request<T> {
   final BehaviorSubject<T> _subject;
 
-  Stream<T> get valueStream => _subject;
+  Stream<T> get resultStream => _subject;
 
   Request({T initialValue, bool executeOnFirstListen = true})
       : _subject = initialValue != null ? BehaviorSubject.seeded(initialValue) : BehaviorSubject() {
@@ -67,7 +67,7 @@ abstract class Request<T> {
 
   bool get hasCurrent => hasData || hasError;
 
-  Future<T> get firstValue => valueStream.firstWhere((result) => result != null);
+  Future<T> get firstValue => resultStream.firstWhere((result) => result != null);
 
   void updateValue(ValueUpdater<T> updater) {
     try {

@@ -124,7 +124,7 @@ void main() {
         expect(request.isWaiting, isFalse);
 
         // Listen to stream
-        StreamTester(request.valueStream);
+        StreamTester(request.resultStream);
 
         expect(request.hasCurrent, isFalse);
         expect(request.isWaiting, isTrue);
@@ -145,7 +145,7 @@ void main() {
           completer = Completer();
           return completer.future;
         });
-        StreamTester(request.valueStream);
+        StreamTester(request.resultStream);
         completer.complete(value);
         await breath();
 
@@ -176,7 +176,7 @@ void main() {
           completer = Completer();
           return completer.future;
         });
-        StreamTester(request.valueStream);
+        StreamTester(request.resultStream);
         completer.complete(value);
         await breath();
 
@@ -206,7 +206,7 @@ void main() {
     group("execute", () {
       test("execute", () async {
         final request = TestRequest();
-        StreamTester(request.valueStream);
+        StreamTester(request.resultStream);
         await breath();
 
         expect(request.hasData, isTrue);
@@ -233,7 +233,7 @@ void main() {
 
       test("execute quietly", () async {
         final request = TestRequest();
-        StreamTester(request.valueStream);
+        StreamTester(request.resultStream);
         await breath();
 
         expect(request.hasData, isTrue);
@@ -469,7 +469,7 @@ void main() {
         final request = TestRequest(
           initialValue: value,
         );
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await breath();
 
@@ -478,7 +478,7 @@ void main() {
 
       test("result should go to stream", () async {
         final request = TestRequest();
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await waitStream();
 
@@ -488,7 +488,7 @@ void main() {
       test("reload should publish to stream", () async {
         var count = 0;
         final request = TestRequest(factory: () => Future.value("${++count}"));
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await waitStream();
 
@@ -501,7 +501,7 @@ void main() {
 
       test("execute should publish to stream", () async {
         final request = TestRequest();
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await waitStream();
 
@@ -514,7 +514,7 @@ void main() {
 
       test("execute should publish exception to stream", () async {
         final request = TestRequest();
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await waitStream();
 
@@ -527,7 +527,7 @@ void main() {
 
       test("putValue should publish to stream", () async {
         final request = TestRequest();
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await waitStream();
 
@@ -540,7 +540,7 @@ void main() {
 
       test("putError should publish to stream", () async {
         final request = TestRequest();
-        final tester = StreamTester(request.valueStream);
+        final tester = StreamTester(request.resultStream);
 
         await waitStream();
 
