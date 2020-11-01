@@ -28,3 +28,11 @@ class SearchItemView extends StatelessWidget {
     return Container();
   }
 }
+
+class SearchResultFile {
+  Future<List<SearchItem>> read() {}
+
+  Future writes(List<SearchItem> currentData) {}
+
+  Future close() {}
+}

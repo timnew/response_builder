@@ -40,11 +40,6 @@ export 'update_actions.dart';
 ///     * An legal "empty value" should be given instead of using `null`:
 ///       * Empty [List] or other equivalent should be given if data is collection type.
 ///       * [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern) is highly recommended,
-///
-/// It takes similar responsibility as
-/// * `bloc` from [Bloc](https://pub.dev/packages/bloc)
-/// * `observable` from [MobX](https://pub.dev/packages/mobx)
-/// * `reducer` in [redux](https://pub.dev/packages/flutter_redux)
 abstract class Request<T> {
   final BehaviorSubject<T> _subject;
 
@@ -86,23 +81,32 @@ abstract class Request<T> {
 
   /// Update request with [value] either synchronously or asynchronously
   ///
-  /// * WHen [value] is [T], result is updated synchronously, [quiet] is ignored
-  /// * WHen [value] is `Future<T>`, result is updated asynchronously, [quiet] indicates whether a loading view should be shown when data is being loaded, default to `false
+  /// * When [value] is [T], result is updated synchronously, [quiet] is ignored
+  /// * When [value] is `Future<T>`, result is updated asynchronously, [quiet] indicates whether a loading view should be shown when data is being loaded, default to `false
   ///   * Typically, [quiet] is only set to `true`, when it is a background data refresh.
   ///   * Error yield by future would be caught by result stream
-  Future execute(FutureOr<T> value, {quiet: false}) async {
+  Future update(FutureOr<T> value, {quiet: false}) async {
     if (value is Future) {
-      await _execute(() => value, quiet);
+      await _execute(value, quiet);
     } else {
       putValue(value);
     }
   }
 
-  Future _execute(Future<T> Function() loadAction, bool quiet) async {
+  /// Execute the [action], updates request with the return value from action.
+  ///
+  /// [action] can either return [T] or `Future<T>`
+  /// [Exception] thrown by `action` would be caught as error result
+  Future execute(FutureOr<T> Function() action, {bool quiet: false}) => _execute(action, quiet); // TODO: add test
+
+  Future _execute(dynamic futureOrAction, bool quiet) async {
+    assert(futureOrAction is FutureOr<T> || futureOrAction is FutureOr<T> Function());
+
     if (!quiet) markAsWaiting();
 
     try {
-      final result = await loadAction();
+      final future = futureOrAction is Future ? futureOrAction : futureOrAction();
+      final result = await future;
       putValue(result);
     } on Exception catch (error, stackTrace) {
       putError(error, stackTrace);
@@ -210,6 +214,6 @@ abstract class Request<T> {
   ///
   /// To update value synchronously, use [updateValue]
   Future updateValueAsync(AsyncValueUpdater<T> updater, {quiet: false}) {
-    return execute(updater(ensuredCurrentData), quiet: quiet);
+    return update(updater(ensuredCurrentData), quiet: quiet);
   }
 }

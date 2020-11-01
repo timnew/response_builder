@@ -267,9 +267,137 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
 }
 ```
 
-### Request
+## Load data asynchronously with `Request`
 
-WIP
+Loading data from network or data base is a extremely common behaviour of majority of the apps. Unfortunately `Future` or `Stream` is kind of too low level to implement app's common requirements.
+
+`Request` is a production-ready abstraction of common behavior that loads data from either an API or making a query to database.
+
+`Request` provides some useful API which enable developer to implement following commonly-seen features easily:
+
+* Retry when error API call fails
+* Refresh data automatically without being noticed by user
+* Optimal update based user's action first, and refresh UI again when API returns.
+
+`buildRequest` from `BuildAsyncResult` allow developer to consume the data from `Request` with no difference from  `buildFuture` or `buildStream`.
+
+Here is an example request that make a search of given keywords:
+
+```dart
+class MySearchRequest extends Request<List<SearchItem>> {
+  final String keywords;
+
+  MySearchRequest(this.keywords);
+
+  Future<List<SearchItem>> load() async {
+    final response = await searchApi.search(keywords: keywords);
+
+    if (response.statusCode != 200) {
+      throw NetworkException("Failed to execute search, please retry");
+    }
+
+    return response.parseBody();
+  }
+}
+```
+
+Here is the Widget to render the search result:
+
+```dart
+class SearchResultView extends StatelessWidget with BuildAsyncResult<List<SearchItem>>, WithEmptyData<List<SearchItem>> {
+  final MySearchRequest request;
+
+  SearchResultView(this.request);
+
+  @override
+  Widget build(BuildContext context) {
+    // use method from BuildAsyncResult to render request
+    return buildRequest(request);
+  }
+
+  @override
+  Widget buildError(BuildContext context, Object error) {
+    return Center(
+      child: Row(children: [
+        Text(error.toString()),
+        TextButton(
+          child: Text("Retry"),
+          onPressed: () => request.reload(), // Retry to do search again
+        )
+      ]),
+    );
+  }
+
+  @override
+  Widget buildContent(BuildContext context, List<SearchItem> content) {
+    return ListView.builder(
+      itemCount: content.length,
+      itemBuilder: (context, index) => SearchItemView(content[index]),
+    );
+  }
+}
+```
+
+## Use `Request` other than in widget building
+
+`Request` is naturally a good place to implement data loading business logic. But it can do more thant that, `Request` provides a bunch of APIs allow developer to manage its value, so it can a good place to encapsulate business logic that related to the data that request holds. And any updates to request's data would be rendered properly, if it is consumed by `BuildAsyncResult`
+
+Because `Request` is highly optimized for the scenario that loading data asynchronously, such as **calling an API** or **querying database**, in those particular use-cases,  `Request` could be good replacement of
+
+* `bloc` from [Bloc](https://pub.dev/packages/bloc)
+* `observable` from [MobX](https://pub.dev/packages/mobx)
+* `reducer` in [redux](https://pub.dev/packages/flutter_redux)
+
+```dart
+class MySearchRequest extends Request<List<SearchItem>> {
+  final String keywords;
+
+  MySearchRequest(this.keywords);
+
+  Future<List<SearchItem>> load() async {
+    final response = await searchApi.search(keywords: keywords);
+
+    if (response.statusCode != 200) {
+      throw NetworkException("Failed to execute search, please retry");
+    }
+
+    return response.parseBody();
+  }
+
+  Future saveSearchResult(SearchResultFile file) async {
+    if (this.hasData) {
+      // write search result to file if it exists
+      await file.writes(currentData);
+    } else if (this.hasError) {
+      // writes error to file with writeError method
+      await file.writeError(currentError);
+    }
+    // Skip if no data is loaded yet.
+  }
+
+  Future loadSearchResult(SearchResultFile file) async {
+    Future<List<SearchItem>> Function() loadAction = file.read;
+
+    // update request with data or error loaded from the file
+    await execute(loadAction);
+  }
+
+  void clearSearchResult() {
+    // Set value of request synchronously
+    putValue([]);
+  }
+
+  void trimResult(int limit) {
+    // Update result based on current data;
+    updateValue((current) => current.take(limit).toList());
+  }
+
+  Future appendFromFile(SearchResultFile file) {
+    // Update result based on current data asynchronously
+    return updateValueAsync((current) async => current + await file.read());
+  }
+}
+```
 
 ### ResultValueStore
 

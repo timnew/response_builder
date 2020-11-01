@@ -216,7 +216,7 @@ void main() {
 
         final completer = Completer<String>();
 
-        request.execute(completer.future);
+        request.update(completer.future);
         await breath();
 
         expect(request.hasCurrent, isFalse);
@@ -243,7 +243,7 @@ void main() {
 
         final completer = Completer<String>();
 
-        request.execute(completer.future, quiet: true);
+        request.update(completer.future, quiet: true);
         await breath();
 
         expect(request.hasData, isTrue);
@@ -505,7 +505,7 @@ void main() {
 
         await waitStream();
 
-        await request.execute(Future.value(newValue));
+        await request.update(Future.value(newValue));
 
         await waitStream();
 
@@ -518,7 +518,7 @@ void main() {
 
         await waitStream();
 
-        await request.execute(Future.error(exception));
+        await request.update(Future.error(exception));
 
         await waitStream();
 

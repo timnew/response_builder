@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:response_builder/response_builder.dart';
 
@@ -16,6 +18,29 @@ class MySearchRequest extends Request<List<SearchItem>> {
     }
 
     return response.parseBody();
+  }
+
+  Future saveSearchResult(SearchResultFile file) async {
+    if (this.hasData) {
+      await file.writes(currentData);
+    }
+  }
+
+  Future loadSearchResult(SearchResultFile file) async {
+    FutureOr<List<SearchItem>> Function() loadAction = file.read;
+    await execute(loadAction);
+  }
+
+  void clearSearchResult() {
+    putValue([]);
+  }
+
+  void trimResult(int limit) {
+    updateValue((current) => current.take(limit).toList());
+  }
+
+  Future appendFromFile(SearchResultFile file) {
+    return updateValueAsync((current) async => current + await file.read());
   }
 }
 
