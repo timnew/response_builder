@@ -57,7 +57,7 @@ abstract class Request<T> {
   Request({
     T initialValue,
     bool loadOnListened = true,
-    bool initialLoadQuietly = false, // TODO add test
+    bool initialLoadQuietly = false,
   })  : _subject = initialValue != null ? BehaviorSubject.seeded(initialValue) : BehaviorSubject(),
         assert(loadOnListened is bool),
         assert(initialLoadQuietly is bool) {

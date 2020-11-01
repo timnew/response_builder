@@ -252,6 +252,51 @@ void main() {
         },
         skip: true, // error is thrown on calling side
       );
+
+      test("do not load on listen", () async {
+        final request = TestRequest(factory: () => Future.value(newValue), initialValue: value, loadOnListened: false);
+
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        // Listen to stream
+        StreamTester(request.resultStream);
+
+        await breath();
+
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+      });
+
+      test("load quietly", () async {
+        Completer<String> completer;
+
+        final request = TestRequest(
+          factory: () {
+            completer = Completer();
+            return completer.future;
+          },
+          initialValue: value,
+          initialLoadQuietly: true,
+        );
+
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        // Listen to stream
+        StreamTester(request.resultStream);
+
+        await breath();
+
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        completer.complete(newValue);
+        await breath();
+
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, newValue);
+      });
     });
 
     group("reload", () {
