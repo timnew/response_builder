@@ -15,20 +15,22 @@ import 'default_build_actions.dart';
 /// * To build 2-state sync result from [ValueListenable], consider use [BuildResultListenable]
 /// * To build 3-state async result, consider use [BuildAsyncResult]
 mixin BuildData<T> {
-  /// Build view when [data[ is loaded
+  /// Contract to to build view when [data[ is loaded
+  ///
+  /// Implementer should always implement this contract
   Widget buildData(BuildContext context, T data);
 }
 
 /// Protocol that builds 2-state sync result, which could be either a data or an error
 /// BuildResult implements [BuildData]
 ///
-/// By default, [buildError] invokes [DefaultBuildActions.buildError]
+/// [BuildResult] is designed to be a conceptual protocol, which would be rarely used directly.
 ///
-/// [BuildResult] is designed to be used in synchronous scenario.
-///
-/// * For asynchronous scenario, use [BuildAsyncResult] instead.
+/// * For synchronous scenario, consider to use [BuildResultListenable].
+/// * For asynchronous scenario, consider to use [BuildAsyncResult].
 mixin BuildResult<T> implements BuildData<T> {
-  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
+  /// Contract to to build view when [error] occurred
+  Widget buildError(BuildContext context, Object error);
 }
 
 /// Protocol that builds 3-state async result, which can be:
@@ -41,13 +43,13 @@ mixin BuildResult<T> implements BuildData<T> {
 /// [BuildAsyncResultProtocol] is considered as a conceptual protocol, which should be rarely used directly.
 /// [BuildAsyncResult] is a ready-to-use implementation of [BuildAsyncResultProtocol]
 mixin BuildAsyncResultProtocol<T> implements BuildResult<T> {
-  /// Build view when data source hasn't connected yet
+  /// Contract to build view when data source hasn't connected yet
   Widget buildInitialState(BuildContext context);
 
-  /// Build view when data is being loaded
+  /// Contract to build view when data is being loaded
   Widget buildWaiting(BuildContext context);
 
-  /// Build view when [error] occurred
+  /// Contract to build view when [error] occurred
   Widget buildError(BuildContext context, Object error);
 }
 
@@ -60,22 +62,22 @@ mixin BuildAsyncResultProtocol<T> implements BuildResult<T> {
 /// By default, [buildError] invokes [DefaultBuildActions.buildError]
 /// [buildWaiting] invokes [DefaultBuildActions.buildWaiting]
 mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
-  /// Build view when data source hasn't connected yet
+  /// Contract to to build view when data source hasn't connected yet
   ///
   /// By default it builds waiting view
   Widget buildInitialState(BuildContext context) => buildWaiting(context);
 
-  /// Build view when data is being loaded
+  /// Contract to to build view when data is being loaded
   ///
   /// By default it uses [DefaultBuildActions]
   Widget buildWaiting(BuildContext context) => DefaultBuildActions.buildWaiting(context);
 
-  /// Build view when [error] occurred
+  /// Contract to to build view when [error] occurred
   ///
-  /// By default it uses [DefaultBuildActions]
+  /// By default it build view with [DefaultBuildActions]
   Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 
-  /// Build [AsyncSnapshot] from [FutureBuilder] or [StreamBuilder]
+  /// Implementation of [AsyncSnapShotBuilder] of [FutureBuilder] or [StreamBuilder], which builds view from [AsyncSnapshot].
   ///
   /// * Initial value / cached value/error is respected with high-priority
   /// * Build initial view when hadn't connect to a data source, it is likely to happen when data source is null
@@ -83,7 +85,7 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
   /// * Build data/error when data/error is received
   /// * null is treated as loading in progress
   ///
-  /// This method should be used as it is, it is likely to be misuse when this method is needed to be overrode
+  /// Implementer should rarely need to override this method, or it is likely to be a misuse.
   Widget buildAsyncSnapshot(BuildContext context, AsyncSnapshot<T> snapshot) {
     if (snapshot.hasError) return buildError(context, snapshot.error);
     if (snapshot.hasData) return buildData(context, snapshot.data);
@@ -104,21 +106,21 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
     }
   }
 
-  /// Build view for [Future] with [FutureBuilder]
+  /// Build view for a [Future] with [FutureBuilder]
   ///
   /// [key] specifies [FutureBuilder]'s key
   /// [initialData] specifies [FutureBuilder]'s initial value
   Widget buildFuture(Future<T> future, {Key key, T initialData}) =>
       FutureBuilder(key: key, future: future, builder: buildAsyncSnapshot, initialData: initialData);
 
-  /// Build view for [Stream] with [StreamBuilder]
+  /// Build view for a [Stream] with [StreamBuilder]
   ///
   /// [key] specifies [StreamBuilder]'s key
   /// [initialData] specifies [StreamBuilder]'s initial value
   Widget buildStream(Stream<T> stream, {Key key, T initialData}) =>
       StreamBuilder(key: key, stream: stream, builder: buildAsyncSnapshot, initialData: initialData);
 
-  /// Build view for [Request] with [StreamBuilder]
+  /// Build view for a [Request] with [StreamBuilder]
   ///
   /// [key] specifies [StreamBuilder]'s key
   /// [initialData] specifies [StreamBuilder]'s initial value
@@ -126,7 +128,7 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
       buildStream(request?.resultStream, key: key, initialData: initialData);
 }
 
-/// Protocol always-exist data from [ValueListenable]
+/// Protocol that builds always-exist data from [ValueListenable]
 mixin BuildValueListenable<T> implements BuildData<T> {
   /// Build view for [ValueListenable] with [ValueListenableBuilder]
   ///
@@ -138,13 +140,14 @@ mixin BuildValueListenable<T> implements BuildData<T> {
       );
 }
 
-/// Protocol 2-state data from [ValueListenable], error is supported beside of successful value
+/// Protocol that builds 2-state data from [ValueListenable],
+/// error is supported beside of successful value.
 ///
 /// [Result] from [package:async](https://pub.dev/packages/async) is used to represents 2-state data
 mixin BuildResultListenable<T> implements BuildResult<T> {
-  /// Build view when [error] occurred
+  /// Contract to to build view when [error] occurred
   ///
-  /// By default it uses [DefaultBuildActions]
+  /// By default it build view with [DefaultBuildActions]
   Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 
   /// Build view for [ValueListenable] with [ValueListenableBuilder]
