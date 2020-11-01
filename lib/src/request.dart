@@ -6,8 +6,13 @@ import 'package:rxdart/rxdart.dart';
 import 'update_actions.dart';
 export 'update_actions.dart';
 
-/// [Request] is the class that loads data and provide it to UI to render. It is designed to be used with [BuildAsyncResult] protocol.
-/// It can be easily consumed by [Widget] with [BuildAsyncResult.buildRequest]
+/// [Request] is a listenable data source that loads data in either synchronous or asynchronous manner.
+///
+/// Similar to [Future] and [Stream], [Request] can hold 3-state result, which could `data`, `error` or `waiting`.
+/// Unlike [Future] and [Stream], [Request] also provide method to read or write result in both synchronous or asynchronous way.
+///
+/// [Request] is designed to be used with [BuildAsyncResult] protocol.
+/// It can be consumed with [BuildAsyncResult.buildRequest] as [Future] and [Protocol].
 ///
 /// [Request] is abstract class, a derived class should be created for particular use case.
 /// Derived class should at least implement [load] method to explicitly specify how request should load data.
@@ -20,7 +25,7 @@ export 'update_actions.dart';
 /// [load] method should do its job without any parameters, consider to add parameters required by load method as Request's field.
 /// Depends on whether those parameter fields are mutable or final,[Request] can be either mutable or immutable.
 ///
-/// [Request] only start to load data when [resultStream] is listened, typically it is when Request is listenable by a widget
+/// [Request] only start to load data when [Request.resultStream] is listened, typically it is when Request is listenable by a widget
 /// with [BuildAsyncResult] protocol. This behavior can be customized for different scenarios:
 ///
 /// * Expect to control when to load data, such as when user clicks load button or so
@@ -40,6 +45,9 @@ export 'update_actions.dart';
 ///     * An legal "empty value" should be given instead of using `null`:
 ///       * Empty [List] or other equivalent should be given if data is collection type.
 ///       * [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern) is highly recommended,
+///
+/// [Request] is designed to handle asynchronous scenario, so its API is more complex and could be more expensive to instantiate.
+/// To deal with synchronous data only, consider use [ResultStore] instead of [Request]
 abstract class Request<T> {
   final BehaviorSubject<T> _subject;
 
@@ -54,6 +62,24 @@ abstract class Request<T> {
   /// [initialValue] provide initial value to the request
   /// [loadOnListened] decides whether request should load data when [resultStream] is being listened, default to `true`
   /// [initialLoadQuietly] decides whether whether initial loads should be quite or not.
+  ///
+  /// * Expect to control when to load data, such as when user clicks load button or so
+  ///   * Set [initialValue] with a legal empty value. For more details about "legal empty value", check below.
+  ///   * Set [loadOnListened] to `false`, so data loading won't triggered automatically
+  ///   * Leave [initialLoadQuietly] to `false`, so a proper loading indicator would show when loading is triggered
+  /// * Render UI with local cached value first, and refresh it on it fly
+  ///   * Set [initialValue] with cached result.
+  ///   * Leave [loadOnListened] to `true`, so a fresh load would be triggered when UI data is used.
+  ///   * Set [initialLoadQuietly] to `true`, so loading view won't happen when refresh is happening in background
+  ///   * To only refresh data when cache is expired, [loadOnListened] can only set to `true` when cache is expired.
+  ///
+  /// [initialValue] provides the initial data to build UI before the data is loaded asynchronously
+  ///   * By default Leave it unset or give `null`, UI would render a loading view before result available
+  ///   * Give [initialValue] if a data view is expected before result is available
+  ///     * It could a data loaded from sync cache
+  ///     * An legal "empty value" should be given instead of using `null`:
+  ///       * Empty [List] or other equivalent should be given if data is collection type.
+  ///       * [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern) is highly recommended,
   Request({
     T initialValue,
     bool loadOnListened = true,
