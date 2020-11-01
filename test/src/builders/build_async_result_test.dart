@@ -24,7 +24,7 @@ class TestFutureWidget extends StatelessWidget with BuildAsyncResult<String> {
 }
 
 class TestRequest extends Request<String> {
-  TestRequest() : super(executeOnFirstListen: false);
+  TestRequest() : super(loadOnListened: false);
 
   @override
   Future<String> load() async {

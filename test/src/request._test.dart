@@ -11,7 +11,7 @@ class TestRequest extends Request<String> {
 
   TestRequest({Future<String> Function() factory, String initialValue, bool executeOnFirstListen = true})
       : createFuture = factory ?? (() => Future.value("value")),
-        super(initialValue: initialValue, executeOnFirstListen: initialValue == null && executeOnFirstListen);
+        super(initialValue: initialValue, loadOnListened: initialValue == null && executeOnFirstListen);
 
   FutureOr<String> load() => createFuture();
 }
@@ -264,14 +264,14 @@ void main() {
     group("first value", () {
       test("fetch initial value", () async {
         final request = TestRequest(initialValue: value, executeOnFirstListen: false);
-        final future = request.firstValue;
+        final future = request.firstResult;
 
         expect(await future, value);
       });
 
       test("fetch first value", () async {
         final request = TestRequest(executeOnFirstListen: false);
-        final future = request.firstValue;
+        final future = request.firstResult;
 
         request.putValue(value);
 
@@ -280,7 +280,7 @@ void main() {
 
       test("fetch only first value", () async {
         final request = TestRequest(executeOnFirstListen: false);
-        final future = request.firstValue;
+        final future = request.firstResult;
 
         request.putValue(value);
         request.putValue(newValue);
@@ -290,7 +290,7 @@ void main() {
 
       test("ignore waiting", () async {
         final request = TestRequest(executeOnFirstListen: false);
-        final future = request.firstValue;
+        final future = request.firstResult;
 
         request.markAsWaiting();
         request.putValue(value);
@@ -300,7 +300,7 @@ void main() {
 
       test("catch error", () async {
         final request = TestRequest(executeOnFirstListen: false);
-        final future = request.firstValue;
+        final future = request.firstResult;
 
         request.putError(exception);
 
@@ -309,7 +309,7 @@ void main() {
 
       test("ignore waiting before  error", () async {
         final request = TestRequest(executeOnFirstListen: false);
-        final future = request.firstValue;
+        final future = request.firstResult;
 
         request.markAsWaiting();
         request.putError(exception);
