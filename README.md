@@ -338,7 +338,7 @@ class SearchResultView extends StatelessWidget with BuildAsyncResult<List<Search
 }
 ```
 
-## Use `Request` other than in widget building
+## Use `Request` out side of widget building
 
 `Request` is naturally a good place to implement data loading business logic. But it can do more thant that, `Request` provides a bunch of APIs allow developer to manage its value, so it can a good place to encapsulate business logic that related to the data that request holds. And any updates to request's data would be rendered properly, if it is consumed by `BuildAsyncResult`
 
@@ -389,7 +389,7 @@ class MySearchRequest extends Request<List<SearchItem>> {
 
   void trimResult(int limit) {
     // Update result based on current data;
-    updateValue((current) => current.take(limit).toList());
+    updateValue((current) => currnt.take(limit).toList());
   }
 
   Future appendFromFile(SearchResultFile file) {
@@ -399,9 +399,99 @@ class MySearchRequest extends Request<List<SearchItem>> {
 }
 ```
 
-### ResultValueStore
+## Handle 2-state data with `ResultStore`
 
-WIP
+Flutter provided `ValueListenable` as synchronous observable data source. ValueListenable is 1-state, which cannot handle error, which is occasionally needed.
+
+`response_builder` provides `ResultStore`, which could holds either data or error.
+
+### Example
+
+Suppose `FormData` model holds a list of fields value. Field value is always string, but its could be valid or invalid.
+
+```dart
+class FormData {
+  final Map<String, ResultStore<String>> fields;
+
+  FormData(Map<String, String> initialValues)
+      : fields = Map.fromIterables(
+          initialValues.keys, // field keys
+          initialValues.values.map(
+            // wrap initial with ResultStore
+            (initialValue) => ResultStore(initialValue),
+          ),
+        );
+
+  void invalidField(String fieldName) {
+    // String can be thrown
+    // Store would treat thrown string as error
+    fields[fieldName].updateValue((current) => throw current);
+  }
+
+  void validField(String fieldName) {
+    // Fix error only execute when store holds error
+    // the returned value is used as value
+    fields[fieldName].fixError((error) => error);
+  }
+}
+```
+
+## Build `ResultStore` with `BuildResultListenable`
+
+`ResultStore` can be listened with `BuildResultListenable`, which shares the similar contract as `BuildAsyncResult`
+
+### Example
+
+```dart
+class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
+  final String fieldName;
+  final ResultStore<String> fieldStore;
+
+  const FormFieldView({Key key, this.fieldName, this.fieldStore}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(fieldName),
+        buildStore(fieldStore),
+      ],
+    );
+  }
+
+  @override
+  Widget buildData(BuildContext context, String data) {
+    return Text(data);
+  }
+
+  @override
+  Widget buildError(BuildContext context, Object error) {
+    final errorColor = Theme.of(context).errorColor;
+
+    final badData = error as String;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Icon(Icons.error_outline, color: errorColor),
+        ),
+        Text(badData, style: TextStyle(color: errorColor)),
+      ],
+    );
+  }
+}
+```
+
+**HINT**  `WithEmptyData`  can be used with`BuildResultListenable` to handle empty content too.
+
+## Consume `ValueListenable` with `BuildValueListenable`
+
+Similar to `BuildResultListenable`, built-in `ValueListenable` can be consumed with `BuildValueListenable` with compatible manner.
+
+**HINT**  `WithEmptyData`  can be used with`BuildValueListenable` to handle empty content too.
 
 ### SingletonRegistry
 

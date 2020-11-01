@@ -80,17 +80,30 @@ class ResultStore<T> {
   }
 
   /// Update store value with [updater] if store holds a value
-  /// Returns the updated value of the store
   ///
   /// [updater] accept current value and return a new value
   ///
-  /// Returns null and without update store if store holds an error
+  /// Return true when value is updated
+  /// Returns false if store holds an error
+  /// Returns false if [updater] throws exception
   ///
-  /// Error thrown by [updater] will be thrown directly rather than being captured by store.
-  T updateValue(ValueUpdater<T> updater) {
-    if (hasError) return null;
+  /// [Exception] thrown by [updater] will be captured as error result by store
+  /// [Error] will be rethrown
+  bool updateValue(ValueUpdater<T> updater) {
+    if (hasError) return false;
 
-    return putValue(updater(value));
+    try {
+      putValue(updater(value));
+      return true;
+    } on Exception catch (err, stackTrace) {
+      putError(err, stackTrace);
+      return false;
+    } on Error {
+      rethrow;
+    } catch (err, stackTrace) {
+      putError(err, stackTrace);
+      return false;
+    }
   }
 
   /// Update store with return value from [fixer] if store holds a error
