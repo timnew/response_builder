@@ -407,28 +407,6 @@ WIP
 
 WIP
 
-## Other Libraries
-
-This library is designed to used along with following libraries, but it is okay to use it without those libs:
-
-* [RxDart]: To access value synchronised from stream
-* [async]: For ValueListanble with value or error.
-* [provider]: To access request or store provided by parent
-* [freezed] or [built_value]: For immutable data models
-* [built_collection] or [kt_dart]: for immutable collection
-
-
-
-
 ## License
 
 The MIT License (MIT)
-
-[RxDart]: https://pub.dev/packages/rxdart
-[async]: https://pub.dev/packages/async
-[provider]: https://pub.dev/packages/provider
-[freezed]: https://pub.dev/packages/freezed
-[built_value]: https://pub.dev/packages/built_value
-[built_collection]: https://pub.dev/packages/built_collection
-[kt_dart]:https://pub.dev/packages/kt_dart
-
