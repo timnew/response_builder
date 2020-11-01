@@ -77,7 +77,7 @@ abstract class Request<T> {
   ///
   /// [quiet] can be used to control whether a loading view should be shown when data is being loaded, default to `false`
   /// Typically, [quiet] is only set to `true`, when it is a background data refresh.
-  Future reload({quiet: false}) async => _execute(load, quiet); // TODO: Test when load throws
+  Future reload({quiet: false}) async => _execute(load, quiet);
 
   /// Update request with [value] either synchronously or asynchronously
   ///
@@ -97,7 +97,7 @@ abstract class Request<T> {
   ///
   /// [action] can either return [T] or `Future<T>`
   /// [Exception] thrown by `action` would be caught as error result
-  Future execute(FutureOr<T> Function() action, {bool quiet: false}) => _execute(action, quiet); // TODO: add test
+  Future execute(FutureOr<T> Function() action, {bool quiet: false}) => _execute(action, quiet);
 
   Future _execute(dynamic futureOrAction, bool quiet) async {
     assert(futureOrAction is FutureOr<T> || futureOrAction is FutureOr<T> Function());
@@ -110,7 +110,8 @@ abstract class Request<T> {
       putValue(result);
     } on Exception catch (error, stackTrace) {
       putError(error, stackTrace);
-    } catch (error) {
+    } catch (error, stackTrace) {
+      putError(error, stackTrace);
       rethrow;
     }
   }

@@ -9,9 +9,13 @@ import '../test_tools/stream_tester.dart';
 class TestRequest extends Request<String> {
   final Future<String> Function() createFuture;
 
-  TestRequest({Future<String> Function() factory, String initialValue, bool executeOnFirstListen = true})
-      : createFuture = factory ?? (() => Future.value("value")),
-        super(initialValue: initialValue, loadOnListened: initialValue == null && executeOnFirstListen);
+  TestRequest({
+    Future<String> Function() factory,
+    String initialValue,
+    bool loadOnListened = true,
+    bool initialLoadQuietly: false,
+  })  : createFuture = factory ?? (() => Future.value("value")),
+        super(initialValue: initialValue, loadOnListened: loadOnListened, initialLoadQuietly: initialLoadQuietly);
 
   FutureOr<String> load() => createFuture();
 }
@@ -33,7 +37,7 @@ void main() {
   group("request", () {
     group("status properties", () {
       test("has no value", () {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         expect(request.hasCurrent, isFalse);
         expect(request.isWaiting, isFalse);
@@ -45,7 +49,7 @@ void main() {
       });
 
       test("has initial value", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.hasCurrent, isTrue);
         expect(request.isWaiting, isFalse);
@@ -57,7 +61,7 @@ void main() {
       });
 
       test("holds value", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         request.putValue(value);
 
@@ -71,7 +75,7 @@ void main() {
       });
 
       test("holds exception", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         request.putError(exception, stackTrace);
         expect(request.hasCurrent, isTrue);
@@ -84,7 +88,7 @@ void main() {
       });
 
       test("holds error", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         request.putError(error, stackTrace);
         expect(request.hasCurrent, isTrue);
@@ -97,7 +101,7 @@ void main() {
       });
 
       test("holds waiting", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         request.markAsWaiting();
 
@@ -203,8 +207,27 @@ void main() {
       });
     });
 
-    group("execute", () {
-      test("execute", () async {
+    group("update", () {
+      test("update with value", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        request.update(newValue);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, newValue);
+      });
+
+      test("update with future", () async {
         final request = TestRequest();
         StreamTester(request.resultStream);
         await breath();
@@ -231,7 +254,54 @@ void main() {
         expect(request.ensuredCurrentData, newValue);
       });
 
-      test("execute quietly", () async {
+      test("update with failed future", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        final completer = Completer<String>();
+
+        request.update(completer.future);
+        await breath();
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isTrue);
+
+        completer.completeError(exception);
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(exception));
+      });
+
+      test("error should be rethrown", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        expect(() async => await request.update(Future.error(error)), throwsA(same(error)));
+
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(error));
+      });
+
+      test("update with future quietly", () async {
         final request = TestRequest();
         StreamTester(request.resultStream);
         await breath();
@@ -261,16 +331,189 @@ void main() {
       });
     });
 
+    group("execute", () {
+      test("execute sync action", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        request.execute(() => newValue);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, newValue);
+      });
+
+      test("sync action throws exception", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        request.execute(() => throw exception);
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(exception));
+      });
+
+      test("sync action throws error", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        expect(
+          () async {
+            await request.execute(() => throw error);
+          },
+          throwsA(same(error)),
+        );
+
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(error));
+      });
+
+      test("update async action", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        final completer = Completer<String>();
+
+        request.execute(() => completer.future);
+        await breath();
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isTrue);
+
+        completer.complete(newValue);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, newValue);
+      });
+
+      test("async action yields exception", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        final completer = Completer<String>();
+
+        request.execute(() => completer.future);
+        await breath();
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isTrue);
+
+        completer.completeError(exception);
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(exception));
+      });
+
+      test("async action yields error", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        expect(
+          () async {
+            await request.execute(() => Future.error(error));
+          },
+          throwsA(same(error)),
+        );
+
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(error));
+      });
+
+      test("execute quietly", () async {
+        final request = TestRequest();
+        StreamTester(request.resultStream);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        final completer = Completer<String>();
+
+        request.execute(() => completer.future, quiet: true);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        completer.complete(newValue);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, newValue);
+      });
+    });
+
     group("first value", () {
       test("fetch initial value", () async {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
         final future = request.firstResult;
 
         expect(await future, value);
       });
 
       test("fetch first value", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
         request.putValue(value);
@@ -279,7 +522,7 @@ void main() {
       });
 
       test("fetch only first value", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
         request.putValue(value);
@@ -289,7 +532,7 @@ void main() {
       });
 
       test("ignore waiting", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
         request.markAsWaiting();
@@ -299,7 +542,7 @@ void main() {
       });
 
       test("catch error", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
         request.putError(exception);
@@ -308,7 +551,7 @@ void main() {
       });
 
       test("ignore waiting before  error", () async {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
         request.markAsWaiting();
@@ -320,7 +563,7 @@ void main() {
 
     group("updateValue", () {
       test("should update value", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -330,7 +573,7 @@ void main() {
       });
 
       test("should catch exception", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -344,7 +587,7 @@ void main() {
       });
 
       test("should rethrow error", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -352,7 +595,7 @@ void main() {
       });
 
       test("should throws when updates on exception", () {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         request.putError(exception);
 
@@ -360,7 +603,7 @@ void main() {
       });
 
       test("should throws when updates on waiting", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         request.markAsWaiting();
 
@@ -370,7 +613,7 @@ void main() {
 
     group("updateValueAsync", () {
       test("should update value", () async {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -390,7 +633,7 @@ void main() {
       });
 
       test("should update value quietly", () async {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -410,7 +653,7 @@ void main() {
       });
 
       test("should catch exception", () async {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -425,7 +668,7 @@ void main() {
       });
 
       test("should rethrow error", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         expect(request.ensuredCurrentData, value);
 
@@ -438,7 +681,7 @@ void main() {
       });
 
       test("should throws when updates on exception", () {
-        final request = TestRequest(executeOnFirstListen: false);
+        final request = TestRequest(loadOnListened: false);
 
         request.putError(exception);
 
@@ -451,7 +694,7 @@ void main() {
       });
 
       test("should throws when updates on waiting", () {
-        final request = TestRequest(initialValue: value, executeOnFirstListen: false);
+        final request = TestRequest(initialValue: value, loadOnListened: false);
 
         request.markAsWaiting();
 
@@ -468,6 +711,7 @@ void main() {
       test("initial value should go to stream", () async {
         final request = TestRequest(
           initialValue: value,
+          loadOnListened: false,
         );
         final tester = StreamTester(request.resultStream);
 
