@@ -389,7 +389,7 @@ void main() {
           completer.completeError(error);
           await breath();
 
-          expect(() async => await reloadFuture, throwsA(same(error)));
+          expect(reloadFuture, throwsA(same(error)));
 
           expect(request.hasData, isFalse);
           expect(request.hasError, isTrue);
@@ -517,7 +517,7 @@ void main() {
         expect(request.isWaiting, isFalse);
         expect(request.ensuredCurrentData, value);
 
-        expect(() async => await request.update(Future.error(error)), throwsA(same(error)));
+        expect(request.update(Future.error(error)), throwsA(same(error)));
 
         await breath();
 
@@ -773,7 +773,7 @@ void main() {
 
         request.putError(exception);
 
-        expect(() async => await future, throwsException);
+        expect(future, throwsException);
       });
 
       test("ignore waiting before  error", () async {
@@ -783,7 +783,7 @@ void main() {
         request.markAsWaiting();
         request.putError(exception);
 
-        expect(() async => await future, throwsException);
+        expect(future, throwsException);
       });
     });
 

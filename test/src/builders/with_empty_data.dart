@@ -206,11 +206,11 @@ void main() {
 
       group("unsupported", () {
         testWidgets("Render content", (WidgetTester tester) async {
-          expect(() async => await tester.pumpWidget(DefaultBehaviorWidget("data")), throwsUnsupportedError);
+          expect(tester.pumpWidget(DefaultBehaviorWidget("data")), throwsUnsupportedError);
         }, skip: true);
 
         testWidgets("Render empty", (WidgetTester tester) async {
-          expect(() async => await tester.pumpWidget(DefaultBehaviorWidget("")), throwsUnsupportedError);
+          expect(tester.pumpWidget(DefaultBehaviorWidget("")), throwsUnsupportedError);
         }, skip: true);
 
         testWidgets("Render null", (WidgetTester tester) async {
