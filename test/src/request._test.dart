@@ -7,10 +7,10 @@ import 'package:response_builder/response_builder.dart';
 import '../test_tools/stream_tester.dart';
 
 class TestRequest extends Request<String> {
-  final Future<String> Function() createFuture;
+  final FutureOr<String> Function() createFuture;
 
   TestRequest({
-    Future<String> Function() factory,
+    FutureOr<String> Function() factory,
     String initialValue,
     bool loadOnListened = true,
     bool initialLoadQuietly: false,
@@ -115,8 +115,69 @@ void main() {
       });
     });
 
-    group("load and reload", () {
-      test("load", () async {
+    group("load", () {
+      test("load synchronously", () async {
+        final request = TestRequest(factory: () => value);
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isFalse);
+
+        // Listen to stream
+        StreamTester(request.resultStream);
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isTrue);
+
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+      });
+
+      test("load synchronously with exception", () async {
+        final request = TestRequest(factory: () => throw exception);
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isFalse);
+
+        // Listen to stream
+        StreamTester(request.resultStream);
+
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(exception));
+      });
+
+      test(
+        "load synchronously with exception",
+        () async {
+          final request = TestRequest(factory: () => throw error);
+
+          expect(request.hasCurrent, isFalse);
+          expect(request.isWaiting, isFalse);
+
+          // Listen to stream
+          StreamTester(request.resultStream);
+
+          expect(request.hasCurrent, isFalse);
+          expect(request.isWaiting, isTrue);
+
+          await breath();
+
+          expect(request.hasData, isFalse);
+          expect(request.hasError, isTrue);
+          expect(request.isWaiting, isFalse);
+          expect(request.currentError, same(error));
+        },
+        skip: true, // error is thrown on calling side
+      );
+
+      test("load asynchronously", () async {
         Completer<String> completer;
 
         final request = TestRequest(factory: () {
@@ -142,7 +203,59 @@ void main() {
         expect(request.ensuredCurrentData, value);
       });
 
-      test("reload", () async {
+      test("load asynchronously with exception", () async {
+        Completer<String> completer;
+
+        final request = TestRequest(factory: () {
+          completer = Completer();
+          return completer.future;
+        });
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isFalse);
+
+        // Listen to stream
+        StreamTester(request.resultStream);
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isTrue);
+
+        completer.completeError(exception);
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(exception));
+      });
+
+      test(
+        "load asynchronously with error",
+        () async {
+          final request = TestRequest(factory: () => Future.error(error));
+
+          expect(request.hasCurrent, isFalse);
+          expect(request.isWaiting, isFalse);
+
+          // Listen to stream
+          StreamTester(request.resultStream);
+
+          expect(request.hasCurrent, isFalse);
+          expect(request.isWaiting, isTrue);
+
+          await breath();
+
+          expect(request.hasData, isFalse);
+          expect(request.hasError, isTrue);
+          expect(request.isWaiting, isFalse);
+          expect(request.currentError, same(error));
+        },
+        skip: true, // error is thrown on calling side
+      );
+    });
+
+    group("reload", () {
+      test("reload a value", () async {
         Completer<String> completer;
 
         final request = TestRequest(factory: () {
@@ -172,6 +285,74 @@ void main() {
         expect(request.isWaiting, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
+
+      test("reload a with an exception", () async {
+        Completer<String> completer;
+
+        final request = TestRequest(factory: () {
+          completer = Completer();
+          return completer.future;
+        });
+        StreamTester(request.resultStream);
+        completer.complete(value);
+        await breath();
+
+        expect(request.hasData, isTrue);
+        expect(request.hasError, isFalse);
+        expect(request.isWaiting, isFalse);
+        expect(request.ensuredCurrentData, value);
+
+        request.reload();
+        await breath();
+
+        expect(request.hasCurrent, isFalse);
+        expect(request.isWaiting, isTrue);
+
+        completer.completeError(exception);
+        await breath();
+
+        expect(request.hasData, isFalse);
+        expect(request.hasError, isTrue);
+        expect(request.isWaiting, isFalse);
+        expect(request.currentError, same(exception));
+      });
+
+      test(
+        "reload a with an error",
+        () async {
+          Completer<String> completer;
+
+          final request = TestRequest(factory: () {
+            completer = Completer();
+            return completer.future;
+          });
+          StreamTester(request.resultStream);
+          completer.complete(value);
+          await breath();
+
+          expect(request.hasData, isTrue);
+          expect(request.hasError, isFalse);
+          expect(request.isWaiting, isFalse);
+          expect(request.ensuredCurrentData, value);
+
+          final reloadFuture = request.reload();
+          await breath();
+
+          expect(request.hasCurrent, isFalse);
+          expect(request.isWaiting, isTrue);
+
+          completer.completeError(error);
+          await breath();
+
+          expect(() async => await reloadFuture, throwsA(same(error)));
+
+          expect(request.hasData, isFalse);
+          expect(request.hasError, isTrue);
+          expect(request.isWaiting, isFalse);
+          expect(request.currentError, same(error));
+        },
+        skip: true, // Exception is not captured by framework
+      );
 
       test("reload quietly", () async {
         Completer<String> completer;

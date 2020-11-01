@@ -63,7 +63,6 @@ abstract class Request<T> {
         assert(initialLoadQuietly is bool) {
     if (loadOnListened) {
       // Load data quietly if initial value is given
-      // TODO: add test for this
       _subject.onListen = () => reload(quiet: initialLoadQuietly);
     }
   }
