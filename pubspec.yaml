@@ -1,6 +1,6 @@
 name: response_builder
 description: A new Flutter package project.
-version: 0.0.1-beta1
+version: 0.0.2-beta1
 homepage: https://github.com/timnew/response_builder
 
 environment:
