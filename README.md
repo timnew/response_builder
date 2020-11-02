@@ -22,6 +22,7 @@ It enables flutter developer to implement following features with minimum effort
 ## Consume data from Future/Stream
 
 To consume data from Future/Stream with `response_builder` library is very easy:
+
 1. Create a stateless/stateful widget
 2. Include `BuildAsyncResult<T>` mixin, `T` is the the data type contained in `Stream`/`Future`
 3. Implement `buildData`, which is used to render the UI when the data is successfully loaded from `Stream`, `Future`.
@@ -399,11 +400,13 @@ class MySearchRequest extends Request<List<SearchItem>> {
 }
 ```
 
-## Handle 2-state data with `ResultStore`
+## Handle 2-state result with `ResultNotifier`
 
-Flutter provided `ValueListenable` as synchronous observable data source. ValueListenable is 1-state, which cannot handle error, which is occasionally needed.
+Flutter provided `ValueListenable` as synchronous observable data source. `ValueListenable` can only holds data, but not error, which is occasionally needed.
 
-`response_builder` provides `ResultStore`, which could holds either data or error.
+`response_builder` provides `ResultListenable`, `ResultNotifier`, which is parallel to `ValueListenable` `ValueNotifier`, but holds 2-state `Result` instead of only data.
+
+2-state result is represented with `Result` from [async](https://pub.dev/packages/async) package
 
 ### Example
 
@@ -411,43 +414,43 @@ Suppose `FormData` model holds a list of fields value. Field value is always str
 
 ```dart
 class FormData {
-  final Map<String, ResultStore<String>> fields;
+  final Map<String, ResultNotifier<String>> fields;
 
   FormData(Map<String, String> initialValues)
       : fields = Map.fromIterables(
           initialValues.keys, // field keys
           initialValues.values.map(
-            // wrap initial with ResultStore
-            (initialValue) => ResultStore(initialValue),
+            // wrap initial with ResultNotifier
+            (initialValue) => ResultNotifier(initialValue),
           ),
         );
 
   void invalidField(String fieldName) {
     // String can be thrown
-    // Store would treat thrown string as error
+    // Notifier would treat thrown string as error
     fields[fieldName].updateValue((current) => throw current);
   }
 
   void validField(String fieldName) {
-    // Fix error only execute when store holds error
+    // Fix error only execute when notifier holds error
     // the returned value is used as value
     fields[fieldName].fixError((error) => error);
   }
 }
 ```
 
-## Build `ResultStore` with `BuildResultListenable`
+## Build `ResultNotifier` with `BuildResultListenable`
 
-`ResultStore` can be listened with `BuildResultListenable`, which shares the similar contract as `BuildAsyncResult`
+`ResultNotifier` can be listened with `BuildResultListenable`, which shares the similar contract as `BuildAsyncResult`
 
 ### Example
 
 ```dart
 class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
   final String fieldName;
-  final ResultStore<String> fieldStore;
+  final ResultListenable<String> listenable;
 
-  const FormFieldView({Key key, this.fieldName, this.fieldStore}) : super(key: key);
+  const FormFieldView({Key key, this.fieldName, this.listenable}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +458,7 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(fieldName),
-        buildStore(fieldStore),
+        buildResultListenable(listenable),
       ],
     );
   }
@@ -492,10 +495,6 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
 Similar to `BuildResultListenable`, built-in `ValueListenable` can be consumed with `BuildValueListenable` with compatible manner.
 
 **HINT**  `WithEmptyData`  can be used with`BuildValueListenable` to handle empty content too.
-
-### SingletonRegistry
-
-WIP
 
 ## License
 
