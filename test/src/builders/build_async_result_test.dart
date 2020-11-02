@@ -17,10 +17,10 @@ class TestFutureWidget extends StatelessWidget with BuildAsyncResult<String> {
       );
 
   @override
-  Widget buildInitialState(BuildContext context) => InitialWidget();
+  Widget buildNoDataSource(BuildContext context) => InitialWidget();
 
   @override
-  Widget buildData(BuildContext context, String data) => ContentWidget(data);
+  Widget buildValue(BuildContext context, String value) => ContentWidget(value);
 }
 
 class TestRequest extends Request<String> {
@@ -43,10 +43,10 @@ class TestRequestWidget extends StatelessWidget with BuildAsyncResult<String> {
       );
 
   @override
-  Widget buildInitialState(BuildContext context) => InitialWidget();
+  Widget buildNoDataSource(BuildContext context) => InitialWidget();
 
   @override
-  Widget buildData(BuildContext context, String data) => ContentWidget(data);
+  Widget buildValue(BuildContext context, String value) => ContentWidget(value);
 }
 
 void main() {

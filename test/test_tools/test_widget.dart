@@ -70,12 +70,12 @@ final findWaitingWidget = find.byType(WaitingWidget);
 
 void useDefaultRenders() {
   setUpAll(() {
-    DefaultBuildActions.registerDefaultWaitingBuilder((context) => WaitingWidget());
+    DefaultBuildActions.registerDefaultLoadingBuilder((context) => WaitingWidget());
     DefaultBuildActions.registerDefaultErrorBuilder((context, error) => ErrorWidget(error));
   });
 
   tearDownAll(() {
-    DefaultBuildActions.registerDefaultWaitingBuilder(null);
+    DefaultBuildActions.registerDefaultLoadingBuilder(null);
     DefaultBuildActions.registerDefaultErrorBuilder(null);
   });
 }

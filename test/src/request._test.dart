@@ -42,9 +42,9 @@ void main() {
       test("has no value", () {
         final request = TestRequest(loadOnListened: false);
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isFalse);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isFalse);
         expect(request.currentData, isNull);
         expect(request.currentError, isNull);
@@ -54,9 +54,9 @@ void main() {
       test("has initial value", () {
         final request = TestRequest(initialValue: value, loadOnListened: false);
 
-        expect(request.hasCurrent, isTrue);
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isTrue);
+        expect(request.hasResult, isTrue);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
         expect(request.currentData, value);
         expect(request.currentError, isNull);
@@ -68,9 +68,9 @@ void main() {
 
         request.putValue(value);
 
-        expect(request.hasCurrent, isTrue);
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isTrue);
+        expect(request.hasResult, isTrue);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
         expect(request.currentData, value);
         expect(request.currentError, isNull);
@@ -81,9 +81,9 @@ void main() {
         final request = TestRequest(loadOnListened: false);
 
         request.putError(exception, stackTrace);
-        expect(request.hasCurrent, isTrue);
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isFalse);
+        expect(request.hasResult, isTrue);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
         expect(request.currentData, isNull);
         expect(request.currentError, same(exception));
@@ -94,9 +94,9 @@ void main() {
         final request = TestRequest(loadOnListened: false);
 
         request.putError(error, stackTrace);
-        expect(request.hasCurrent, isTrue);
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isFalse);
+        expect(request.hasResult, isTrue);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
         expect(request.currentData, isNull);
         expect(request.currentError, same(error));
@@ -108,9 +108,9 @@ void main() {
 
         request.markAsWaiting();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
-        expect(request.hasData, isFalse);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isFalse);
         expect(request.currentData, isNull);
         expect(request.currentError, isNull);
@@ -122,37 +122,37 @@ void main() {
       test("load synchronously", () async {
         final request = TestRequest(factory: () => value);
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isFalse);
 
         // Listen to stream
         StreamTester(request.resultStream);
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
       });
 
       test("load synchronously with exception", () async {
         final request = TestRequest(factory: () => throw exception);
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isFalse);
 
         // Listen to stream
         StreamTester(request.resultStream);
 
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(exception));
       });
 
@@ -161,20 +161,20 @@ void main() {
         () async {
           final request = TestRequest(factory: () => throw error);
 
-          expect(request.hasCurrent, isFalse);
-          expect(request.isWaiting, isFalse);
+          expect(request.hasResult, isFalse);
+          expect(request.isLoading, isFalse);
 
           // Listen to stream
           StreamTester(request.resultStream);
 
-          expect(request.hasCurrent, isFalse);
-          expect(request.isWaiting, isTrue);
+          expect(request.hasResult, isFalse);
+          expect(request.isLoading, isTrue);
 
           await breath();
 
-          expect(request.hasData, isFalse);
+          expect(request.hasValue, isFalse);
           expect(request.hasError, isTrue);
-          expect(request.isWaiting, isFalse);
+          expect(request.isLoading, isFalse);
           expect(request.currentError, same(error));
         },
         skip: true, // error is thrown on calling side
@@ -188,21 +188,21 @@ void main() {
           return completer.future;
         });
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isFalse);
 
         // Listen to stream
         StreamTester(request.resultStream);
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.complete(value);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
       });
 
@@ -214,21 +214,21 @@ void main() {
           return completer.future;
         });
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isFalse);
 
         // Listen to stream
         StreamTester(request.resultStream);
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.completeError(exception);
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(exception));
       });
 
@@ -237,20 +237,20 @@ void main() {
         () async {
           final request = TestRequest(factory: () => Future.error(error));
 
-          expect(request.hasCurrent, isFalse);
-          expect(request.isWaiting, isFalse);
+          expect(request.hasResult, isFalse);
+          expect(request.isLoading, isFalse);
 
           // Listen to stream
           StreamTester(request.resultStream);
 
-          expect(request.hasCurrent, isFalse);
-          expect(request.isWaiting, isTrue);
+          expect(request.hasResult, isFalse);
+          expect(request.isLoading, isTrue);
 
           await breath();
 
-          expect(request.hasData, isFalse);
+          expect(request.hasValue, isFalse);
           expect(request.hasError, isTrue);
-          expect(request.isWaiting, isFalse);
+          expect(request.isLoading, isFalse);
           expect(request.currentError, same(error));
         },
         skip: true, // error is thrown on calling side
@@ -262,7 +262,7 @@ void main() {
             initialValue: value,
             loadOnListened: false);
 
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         // Listen to stream
@@ -270,7 +270,7 @@ void main() {
 
         await breath();
 
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
       });
 
@@ -286,7 +286,7 @@ void main() {
           initialLoadQuietly: true,
         );
 
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         // Listen to stream
@@ -294,13 +294,13 @@ void main() {
 
         await breath();
 
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
     });
@@ -317,23 +317,23 @@ void main() {
         completer.complete(value);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         request.reload();
         await breath();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
 
@@ -348,23 +348,23 @@ void main() {
         completer.complete(value);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         request.reload();
         await breath();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.completeError(exception);
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(exception));
       });
 
@@ -381,25 +381,25 @@ void main() {
           completer.complete(value);
           await breath();
 
-          expect(request.hasData, isTrue);
+          expect(request.hasValue, isTrue);
           expect(request.hasError, isFalse);
-          expect(request.isWaiting, isFalse);
+          expect(request.isLoading, isFalse);
           expect(request.ensuredCurrentData, value);
 
           final reloadFuture = request.reload();
           await breath();
 
-          expect(request.hasCurrent, isFalse);
-          expect(request.isWaiting, isTrue);
+          expect(request.hasResult, isFalse);
+          expect(request.isLoading, isTrue);
 
           completer.completeError(error);
           await breath();
 
           expect(reloadFuture, throwsA(same(error)));
 
-          expect(request.hasData, isFalse);
+          expect(request.hasValue, isFalse);
           expect(request.hasError, isTrue);
-          expect(request.isWaiting, isFalse);
+          expect(request.isLoading, isFalse);
           expect(request.currentError, same(error));
         },
         skip: true, // Exception is not captured by framework
@@ -416,25 +416,25 @@ void main() {
         completer.complete(value);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         request.reload(quiet: true);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
     });
@@ -445,17 +445,17 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         request.update(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
 
@@ -464,9 +464,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         final completer = Completer<String>();
@@ -474,15 +474,15 @@ void main() {
         request.update(completer.future);
         await breath();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
 
@@ -491,9 +491,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         final completer = Completer<String>();
@@ -501,15 +501,15 @@ void main() {
         request.update(completer.future);
         await breath();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.completeError(exception);
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(exception));
       });
 
@@ -518,18 +518,18 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         expect(request.update(Future.error(error)), throwsA(same(error)));
 
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(error));
       });
 
@@ -538,9 +538,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         final completer = Completer<String>();
@@ -548,17 +548,17 @@ void main() {
         request.update(completer.future, quiet: true);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
     });
@@ -569,17 +569,17 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         request.execute(() => newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
 
@@ -588,17 +588,17 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         request.execute(() => throw exception);
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(exception));
       });
 
@@ -607,9 +607,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         expect(
@@ -621,9 +621,9 @@ void main() {
 
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(error));
       });
 
@@ -632,9 +632,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         final completer = Completer<String>();
@@ -642,15 +642,15 @@ void main() {
         request.execute(() => completer.future);
         await breath();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
 
@@ -659,9 +659,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         final completer = Completer<String>();
@@ -669,15 +669,15 @@ void main() {
         request.execute(() => completer.future);
         await breath();
 
-        expect(request.hasCurrent, isFalse);
-        expect(request.isWaiting, isTrue);
+        expect(request.hasResult, isFalse);
+        expect(request.isLoading, isTrue);
 
         completer.completeError(exception);
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(exception));
       });
 
@@ -686,9 +686,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         expect(
@@ -700,9 +700,9 @@ void main() {
 
         await breath();
 
-        expect(request.hasData, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.currentError, same(error));
       });
 
@@ -711,9 +711,9 @@ void main() {
         StreamTester(request.resultStream);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         final completer = Completer<String>();
@@ -721,17 +721,17 @@ void main() {
         request.execute(() => completer.future, quiet: true);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, value);
 
         completer.complete(newValue);
         await breath();
 
-        expect(request.hasData, isTrue);
+        expect(request.hasValue, isTrue);
         expect(request.hasError, isFalse);
-        expect(request.isWaiting, isFalse);
+        expect(request.isLoading, isFalse);
         expect(request.ensuredCurrentData, newValue);
       });
     });
@@ -811,8 +811,8 @@ void main() {
 
         request.updateValue((current) => throw exception);
 
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isFalse);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
 
         expect(request.currentError, same(exception));
@@ -859,7 +859,7 @@ void main() {
           return "updated $current";
         });
 
-        expect(request.isWaiting, isTrue);
+        expect(request.isLoading, isTrue);
 
         completer.complete();
         await breath();
@@ -895,8 +895,8 @@ void main() {
         request.updateValueAsync((current) => Future.error(exception));
         await breath();
 
-        expect(request.isWaiting, isFalse);
-        expect(request.hasData, isFalse);
+        expect(request.isLoading, isFalse);
+        expect(request.hasValue, isFalse);
         expect(request.hasError, isTrue);
 
         expect(request.currentError, same(exception));

@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 
-typedef DataWidgetBuilder<T> = Widget Function(BuildContext context, T data);
+typedef ValueWidgetBuilder<T> = Widget Function(BuildContext context, T value);
 
 /// Default building actions that used by [BuildResultListenable] and [BuildAsyncResult]
 class DefaultBuildActions {
-  static DataWidgetBuilder<Object> _customErrorBuilder;
+  static ValueWidgetBuilder<Object> _customErrorBuilder;
   static WidgetBuilder _customWaitingBuilder;
 
   DefaultBuildActions._();
 
   /// Register customized [errorBuilder], which is used by [BuildResultListenable.buildError]
   /// and [BuildAsyncResult.buildError] by default.
-  static void registerDefaultErrorBuilder(
-      DataWidgetBuilder<Object> errorBuilder) {
+  static void registerDefaultErrorBuilder(ValueWidgetBuilder<Object> errorBuilder) {
     _customErrorBuilder = errorBuilder;
   }
 
-  /// Register customized [waitingBuilder], which is used by [BuildAsyncResult.buildWaiting] by default.
-  static void registerDefaultWaitingBuilder(WidgetBuilder waitingBuilder) {
+  /// Register customized [waitingBuilder], which is used by [BuildAsyncResult.buildLoading] by default.
+  static void registerDefaultLoadingBuilder(WidgetBuilder waitingBuilder) {
     _customWaitingBuilder = waitingBuilder;
   }
 
@@ -35,8 +34,8 @@ class DefaultBuildActions {
     );
   }
 
-  /// Build waiting view
-  static Widget buildWaiting(BuildContext context) {
+  /// Build loading view
+  static Widget buildLoading(BuildContext context) {
     if (_customWaitingBuilder != null) return _customWaitingBuilder(context);
     return Center(child: CircularProgressIndicator(value: null));
   }

@@ -6,14 +6,14 @@ import 'package:response_builder/response_builder.dart';
 
 import '../../test_tools/test_widget.dart';
 
-class TestWidget extends StatelessWidget with WithEmptyData<String> {
+class TestWidget extends StatelessWidget with WithEmptyValue<String> {
   final String content;
 
   const TestWidget(this.content);
 
   @override
   Widget build(BuildContext context) => TestBench(
-        child: buildData(context, content),
+        child: buildValue(context, content),
       );
 
   @override
@@ -24,11 +24,11 @@ class TestWidget extends StatelessWidget with WithEmptyData<String> {
   Widget buildEmpty(BuildContext context, String emptyContent) => EmptyWidget();
 
   @override
-  bool checkIsDataEmpty(String data) => data.isEmpty;
+  bool checkIsValueEmpty(String value) => value.isEmpty;
 }
 
 class TestFutureWithEmptyWidget extends StatelessWidget
-    with BuildAsyncResult<String>, WithEmptyData<String> {
+    with BuildAsyncResult<String>, WithEmptyValue<String> {
   final completer = Completer<String>();
 
   @override
@@ -44,17 +44,17 @@ class TestFutureWithEmptyWidget extends StatelessWidget
   Widget buildEmpty(BuildContext context, String emptyContent) => EmptyWidget();
 
   @override
-  bool checkIsDataEmpty(String data) => data.isEmpty;
+  bool checkIsValueEmpty(String data) => data.isEmpty;
 }
 
-class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyData<T> {
+class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyValue<T> {
   final T data;
 
   const DefaultBehaviorWidget(this.data);
 
   @override
   Widget build(BuildContext context) => TestBench(
-        child: buildData(context, data),
+        child: buildValue(context, data),
       );
 
   @override

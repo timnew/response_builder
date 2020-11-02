@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:response_builder/response_builder.dart';
 
 class MyListWidget extends StatelessWidget
-    with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
+    with BuildAsyncResult<List<String>>, WithEmptyValue<List<String>> {
   final Future<List<String>> future;
 
   const MyListWidget({Key key, this.future}) : super(key: key);
@@ -27,7 +27,7 @@ class MyListWidget extends StatelessWidget
   }
 
   @override
-  bool checkIsDataEmpty(List<String> data) {
-    return data.where((e) => e.isNotEmpty).isEmpty;
+  bool checkIsValueEmpty(List<String> value) {
+    return value.where((e) => e.isNotEmpty).isEmpty;
   }
 }

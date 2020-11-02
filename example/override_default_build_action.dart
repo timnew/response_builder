@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:response_builder/response_builder.dart';
 
 void main() {
-  DefaultBuildActions.registerDefaultWaitingBuilder((context) {
+  DefaultBuildActions.registerDefaultLoadingBuilder((context) {
     return Center(
       child: CupertinoActivityIndicator(),
     );

@@ -141,25 +141,25 @@ abstract class Request<T> {
 
   /// Check whether request is in waiting state
   ///
-  /// [isWaiting] is exclusive to [hasCurrent], [hasData] and [hasError]
-  bool get isWaiting => _subject.hasValue && currentData == null;
+  /// [isLoading] is exclusive to [hasResult], [hasValue] and [hasError]
+  bool get isLoading => _subject.hasValue && currentData == null;
 
   /// Check whether request has a data or an error.
   ///
-  /// [hasCurrent] is exclusive to [isWaiting]
-  /// Use [hasData] or [hasError] to determine current value is data or error
-  bool get hasCurrent => hasData || hasError;
+  /// [hasResult] is exclusive to [isLoading]
+  /// Use [hasValue] or [hasError] to determine current value is data or error
+  bool get hasResult => hasValue || hasError;
 
   /// Check whether request has a data
   ///
   /// Check whether current is error with [hasError]
-  /// Check whether request is waiting with [isWaiting]
-  bool get hasData => _subject.hasValue && currentData != null;
+  /// Check whether request is waiting with [isLoading]
+  bool get hasValue => _subject.hasValue && currentData != null;
 
   /// Check whether request has a error
   ///
-  /// Check whether current is data with [hasData]
-  /// Check whether request is waiting with [isWaiting]
+  /// Check whether current is data with [hasValue]
+  /// Check whether request is waiting with [isLoading]
   bool get hasError => _subject.hasError;
 
   /// Get latest data.
@@ -170,7 +170,7 @@ abstract class Request<T> {
 
   /// Similar to [currentData], but throws [StateError] when data is not available
   T get ensuredCurrentData {
-    if (!hasData) throw StateError("Access data when it is not yet available");
+    if (!hasValue) throw StateError("Access value when it is not yet available");
     return currentData;
   }
 
@@ -200,7 +200,7 @@ abstract class Request<T> {
   ///
   /// Exception throws by [updater] would be caught by result as error result
   ///
-  /// [StateError] is thrown when data is not available, check request state with [hasData] if not sure.
+  /// [StateError] is thrown when data is not available, check request state with [hasValue] if not sure.
   ///
   /// To update value asynchronously, use [updateValueAsync]
   void updateValue(ValueUpdater<T> updater) {
@@ -219,7 +219,7 @@ abstract class Request<T> {
   ///
   /// Exception throws by [updater] would be caught by result as error result
   ///
-  /// [StateError] is thrown when data is not available, check request state with [hasData] if not sure.
+  /// [StateError] is thrown when data is not available, check request state with [hasValue] if not sure.
   ///
   /// To update value synchronously, use [updateValue]
   Future updateValueAsync(AsyncValueUpdater<T> updater, {quiet: false}) {

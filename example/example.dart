@@ -21,7 +21,7 @@ class MySearchRequest extends Request<List<SearchItem>> {
   }
 
   Future saveSearchResult(SearchResultFile file) async {
-    if (this.hasData) {
+    if (this.hasValue) {
       await file.writes(currentData);
     }
   }
@@ -57,7 +57,7 @@ class SearchResultView extends StatelessWidget
   }
 
   @override
-  Widget buildWaiting(BuildContext context) {
+  Widget buildLoading(BuildContext context) {
     return Center(
       child: CircularProgressIndicator(value: null),
     );
@@ -77,7 +77,7 @@ class SearchResultView extends StatelessWidget
   }
 
   @override
-  Widget buildData(BuildContext context, List<SearchItem> data) {
+  Widget buildValue(BuildContext context, List<SearchItem> value) {
     return ListView.builder(
       itemCount: request.ensuredCurrentData.length,
       itemBuilder: (context, index) =>

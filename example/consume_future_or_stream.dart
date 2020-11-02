@@ -17,7 +17,7 @@ class MyWidget extends StatelessWidget with BuildAsyncResult<String> {
   }
 
   @override
-  Widget buildWaiting(BuildContext context) {
+  Widget buildLoading(BuildContext context) {
     return Center(
       child: CircularProgressIndicator(value: null),
     );
@@ -31,9 +31,9 @@ class MyWidget extends StatelessWidget with BuildAsyncResult<String> {
   }
 
   @override
-  Widget buildData(BuildContext context, String data) {
+  Widget buildValue(BuildContext context, String value) {
     return Center(
-      child: Text(data),
+      child: Text(value),
     );
   }
 }

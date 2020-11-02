@@ -37,8 +37,8 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
   }
 
   @override
-  Widget buildData(BuildContext context, String data) {
-    return Text(data);
+  Widget buildValue(BuildContext context, String value) {
+    return Text(value);
   }
 
   @override
