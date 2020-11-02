@@ -21,16 +21,6 @@ It enables flutter developer to implement following features with minimum effort
 
 ## What's in library
 
-### Terminologies
-
-* **Data** - Generic word for data, it could be `Value`, 2-state `Result` or 3-state `AsyncResult`
-* **Result** - synchronous 2-state data, which can be `Value` or `Error`
-* **AsyncResult** - asynchronous 3-state data, which can be `Value`, `Error`, or `Loading`
-* **Value** - Basic type of data, it contains information that needed to build UI
-* **Error** - A special type of data that indicates data is available to be access in synchronous way, but something went wrong, it is exclusive to `Value`, used by `Result` and `AsyncResult`
-* **Loading** - A special type of data that indicates data is not yet available to be accessed synchronously, it would eventually become either `Value` or `Error`, used by `AsyncResult`
-* **Empty** - A special type of `Value`, which is a legal, but contains no information, such as an empty list or empty map.
-
 ### Key types
 
 * Data Source
@@ -362,21 +352,55 @@ class UniversalDataList extends StatelessWidget with BuildAsyncSnapshot<List<Str
 }
 ```
 
-## Load data asynchronously with `Request`
+## What is `Request` and `ResultListenable`, and what they used for
 
-Loading data from network or database is a extremely common behaviour of majority of the apps. Unfortunately `Future` or `Stream` is kind of too low level to implement app's common requirements.
+To better explain wha `Request` and `ResultListable` is, some terminologies should be explained first
 
-`Request` is a production-ready abstraction of common behavior that loads data from either an API or making a query to database.
+### Some concepts
 
-`Request` provides some useful API which enable developer to implement following commonly-seen features easily:
+* **Value** - The most common type of `data`, which is a `result` that holds a piece of information can be used to render UI
+* **Error** - A special type of `data` which indicates `result` is ready, something went wrong during the process. `Error` is exclusive to `value`.
+* **Loading** - A special type of `data` which indicates the `result` is not yet available. It is supposed to be temporary, which eventually replaced by either `value` or an `error`.
+* **Result** - A 2-state `data`, which could be either `value` or `error`. `Result` is synchronous `data`.
+* **AsyncResult** - A 3-state `data`, which can be `value`, `error`, or `loading`, `AsyncResult` is asynchronous `data`.
+* **Data** - The general concept of information used by app.
+* **Empty** - A special type of `Value`, which is a legal `value`, but contains no information, such as `[]`of `List<String>`.
 
-* Retry when error API call fails
-* Refresh data automatically without being noticed by user
-* Optimal update based user's action first, and refresh UI again when API returns.
+### Different type of data sources
 
-`buildRequest` from `BuildAsyncSnapshot` allow developer to consume the data from `Request` with no difference from  `buildFuture` or `buildStream`.
+With the concepts above, the data sources can be categories as:
 
-Here is an example request that make a search of given keywords:
+* `List<String>`:  The `data` itself, it is static, its value won't change.
+* `ValueListenable`: A synchronous observable data source, which provides `value`.
+* `ResultListenable`: A synchronous 2-state observable data source, which provides `result`.
+* `Future`: A one-time-use asynchronous 3-state observable data source, which provides `async result`
+  * `Future`  is `one-time-use` , so `loading` would only appears once, then its value fixed in either a `value` or `error`. Can't changed afterward.
+* `Stream`: An on-going asynchronous 3-state observable data source, which provides `async result`.
+  * `Stream` is `on-going` data source, whose value could changing across time as many times as it needs to be.
+  * `Stream`'s data is typically controlled by remote source, such as a file or remote server.
+  * `Stream`'s data can only be accessed by listener in asynchronous way.
+  * `Stream` needs to be listened before data is feeding, or previous values are lost.
+* `Request`: An on-going asynchronous 3-state observable data source that provides `async result`.
+  * `Request` is `on-going` data source, whose value could changing across time as many times as it needs to be.
+  * `Request`'s value can be accessible in a synchronous by any one who has its instance.
+  * `Request`'s value can be manipulated locally.
+  * `Request` can be listened as many times as it needs to be.
+  * `Request` can be listened by as many listeners simultaneously as it needs to be.
+  * `Request` can be fed with `future`, `async result` yielded by `future` goes into `request`.
+
+### Conclusion
+
+So with this comparison, it is clear that:
+
+>  `Request` is designed to be used as app state manager, while `future` or `stream` is more a low-level data source.
+
+> `ResultListenable` is used to fill the gap in flutter framework, which is being lack of 2-state synchronous data source.
+
+## Loading data from network with `Request`
+
+Using `Request` is much easier than explaining what `Request` is and what is is for.
+
+Here is an example that demonstrates loading some data from a search API:
 
 ```dart
 class MySearchRequest extends Request<List<SearchItem>> {
@@ -396,7 +420,11 @@ class MySearchRequest extends Request<List<SearchItem>> {
 }
 ```
 
-Here is the Widget to render the search result:
+Every request should implement at least `load` method, which is the contract used to specify how the data should be loaded.
+
+## Use `Request` in widget
+
+Build widget with `Request` can be easily done with `BuildAsyncSnapshot` protocol and `buildRequest` action:
 
 ```dart
 class SearchResultView extends StatelessWidget with BuildAsyncSnapshot<List<SearchItem>>, WithEmptyValue<List<SearchItem>> {
@@ -433,15 +461,21 @@ class SearchResultView extends StatelessWidget with BuildAsyncSnapshot<List<Sear
 }
 ```
 
-## Use `Request` out side of widget building
+Besides being used to async result data source, `Request` also provides APIs to do other common tasks, such as re-execute `load` and feed its result to request, aka `retry` when request holds an `error `or `refresh` when request holds a `value`.
 
-`Request` is naturally a good place to implement data loading business logic. But it can do more thant that, `Request` provides a bunch of APIs allow developer to manage its value, so it can a good place to encapsulate business logic that related to the data that request holds. And any updates to request's data would be rendered properly, if it is consumed by `BuildAsyncSnapshot`
+## Use `Request` as business logic controller instead of using `StatefulWidget`.
 
-Because `Request` is highly optimized for the scenario that loading data asynchronously, such as **calling an API** or **querying database**, in those particular use-cases,  `Request` could be good replacement of
+`Request` provides a bunch of API to work with 3-state `async result` with ease, and every changes on its value would notifies UI, eventually have UI updated with contracts defined by `BuildAsyncResult`. So `Request` can be used a logical controller that manages app state, instead of using a `StatefulWidget`.
 
-* `bloc` from [Bloc](https://pub.dev/packages/bloc)
-* `observable` from [MobX](https://pub.dev/packages/mobx)
-* `reducer` in [redux](https://pub.dev/packages/flutter_redux)
+Using `Request` as business logic controller has a few benefits:
+
+* Decoupling the business logic from UI
+* Business logic can be tested independently without UI
+* UI can be stateless, which is cheapter to build and easier to maintain.
+
+As `Request` is highly optimized for the scenario dealing with data loading, so in a few particular cases,`Request` could be a much-easier-to-use replacement of other complicated solutions, such as `bloc`, `mobx` or `redux` style `reducer`.
+
+An example to make request do something more than just load:
 
 ```dart
 class MySearchRequest extends Request<List<SearchItem>> {
@@ -460,51 +494,53 @@ class MySearchRequest extends Request<List<SearchItem>> {
   }
 
   Future saveSearchResult(SearchResultFile file) async {
-    if (this.hasData) {
+    if (this.hasValue) { // Check whether request holds a value
       // write search result to file if it exists
-      await file.writes(currentData);
+      await file.writes(currentValue);
     } else if (this.hasError) {
       // writes error to file with writeError method
       await file.writeError(currentError);
     }
-    // Skip if no data is loaded yet.
+    // Skip if request is loading.
   }
 
   Future loadSearchResult(SearchResultFile file) async {
     Future<List<SearchItem>> Function() loadAction = file.read;
 
-    // update request with data or error loaded from the file
+    // Feed a future into request, it updates UI just as the UI is listening to the future.
     await execute(loadAction);
   }
 
   void clearSearchResult() {
-    // Set value of request synchronously
+    // update request's data with given value
     putValue([]);
   }
 
   void trimResult(int limit) {
-    // Update result based on current data;
-    updateValue((current) => currnt.take(limit).toList());
+    // Update request's value based on current value
+    // Exception happened during the updating is caught by request and rendered on UI automatically.
+    updateValue((current) => current.take(limit).toList());
   }
 
   Future appendFromFile(SearchResultFile file) {
-    // Update result based on current data asynchronously
+    // Update request's value based on current value in asynchronous way
+    // Exception happened during the updating is caught by request and rendered on UI automatically.
     return updateValueAsync((current) async => current + await file.read());
   }
 }
 ```
 
-## Handle 2-state result with `ResultNotifier`
+## handle 2-state synchronous result with `ResultNotifier`
 
-Flutter provided `ValueListenable` as synchronous observable data source. `ValueListenable` can only holds data, but not error, which is occasionally needed.
-
-`response_builder` provides `ResultListenable`, `ResultNotifier`, which is parallel to `ValueListenable` `ValueNotifier`, but holds 2-state `Result` instead of only data.
+`ResultNotifier` is a parallel type to `ValueNotifier` but holds 2-state result instead of just value.
 
 2-state result is represented with `Result` from [async](https://pub.dev/packages/async) package
 
-### Example
+`ResultNotifier` could be useful when dealing with the case that error in data is not fatal.
 
-Suppose `FormData` model holds a list of fields value. Field value is always string, but its could be valid or invalid.
+Here is a simple example:
+
+`FormData` holds a list of string form-field values, which can be either valid or invalid.
 
 ```dart
 class FormData {
@@ -522,25 +558,25 @@ class FormData {
   void invalidField(String fieldName) {
     // String can be thrown
     // Notifier would treat thrown string as error
+    // updateValue would only call its callback when it holds value
     fields[fieldName].updateValue((current) => throw current);
   }
 
   void validField(String fieldName) {
     // Fix error only execute when notifier holds error
     // the returned value is used as value
+    // fixError would only call its callback when it holds error
     fields[fieldName].fixError((error) => error);
   }
 }
 ```
 
-## Build `ResultNotifier` with `BuildResultListenable`
+## Build widget with `ResultNotifier`/ `ResultListenable`
 
-`ResultNotifier` can be listened with `BuildResultListenable`, which shares the similar contract as `BuildAsyncSnapshotActions`
-
-### Example
+`ResultListenable` can be consumed with `buildResultListenable` action on any type implemented `BuildResult` protocol:
 
 ```dart
-class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
+class FormFieldView extends StatelessWidget with BuildResult<String> {
   final String fieldName;
   final ResultListenable<String> listenable;
 
