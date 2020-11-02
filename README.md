@@ -25,7 +25,7 @@ To consume data from Future/Stream with `response_builder` library is very easy:
 
 1. Create a stateless/stateful widget
 2. Include `BuildAsyncResult<T>` mixin, `T` is the the data type contained in `Stream`/`Future`
-3. Implement `buildData`, which is used to render the UI when the data is successfully loaded from `Stream`, `Future`.
+3. Implement `buildValue`, which is used to render the UI when the data is successfully loaded from `Stream`, `Future`.
 4. Calling `buildFuture`/`buildStream` in widget's `build` method, to trigger wire the data source to `BuildAsyncResult` mixin.
 
 ```dart
@@ -49,10 +49,10 @@ class MyWidget extends StatelessWidget with BuildAsyncResult<String> {
   }
 
   @override
-  Widget buildData(BuildContext context, String data) {
-    // Implement buildData contract to render UI when data is successfully fetched
+  Widget buildValue(BuildContext context, String value) {
+    // Implement buildValue contract to render UI when value is successfully fetched
     return Center(
-      child: Text(data),
+      child: Text(value),
     );
   }
 }
@@ -110,9 +110,9 @@ class MyWidget extends StatelessWidget with BuildAsyncResult<String> {
   }
 
   @override
-  Widget buildData(BuildContext context, String data) {
+  Widget buildValue(BuildContext context, String value) {
     return Center(
-      child: Text(data),
+      child: Text(value),
     );
   }
 }
@@ -149,14 +149,14 @@ DefaultBuildActions.registerDefaultErrorBuilder((context, error) {
 
 **HINT:** Register default builder with `DefaultBuildActions` will only impact those widgets uses `BuildAsyncResult` without overriding `buildError` or `buildWaiting`. Customized override will be respected
 
-## Handle empty data
+## Handle empty value
 
 Sometimes our API returns successfully without error, but it gives empty result, such as user doing a search with typos in keywords which leads to nothing. And also if you render the UI with `ListView` or other collection widgets, which unfortunately doesn't support to build empty list.
 
-`response_builder` provided `WithEmptyData<T>` mixin to tackle this issue, what's more is `WithEmptyData<T>` is aware of the contracts from `BuildAsyncResult<T>` or other builder mixins, so it just work together automatically without any additional effort.
+`response_builder` provided `WithEmptyValue<T>` mixin to tackle this issue, what's more is `WithEmptyValue<T>` is aware of the contracts from `BuildAsyncResult<T>` or other builder mixins, so it just work together automatically without any additional effort.
 
 ```dart
-class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
+class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyValue<List<String>> {
   final Future<List<String>> future;
 
   const MyListWidget({Key key, this.future}) : super(key: key);
@@ -166,10 +166,10 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
     return buildFuture(future);
   }
 
-  // Instead of implement buildData, you should implement buildContent as minimal implementation
+  // Instead of implement buildValue, you should implement buildContent as minimal implementation
   @override
   Widget buildContent(BuildContext context, List<String> content) {
-    // Implement contract from WithEmptyData to build not empty content
+    // Implement contract from WithEmptyValue to build not empty content
 
     // content will never be empty
     assert(content.isNotEmpty);
@@ -182,14 +182,14 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
 }
 ```
 
-## Customize Empty Screen for `WithEmptyData`
+## Customize Empty Screen for `WithEmptyValue`
 
-By Default, `WithEmptyData` renders an empty `Container` when empty data is received, so it looks like an blank screen from user's perspective, while `ListView` would complain if you feed it with an empty list.
+By Default, `WithEmptyValue` renders an empty `Container` when empty value is received, so it looks like an blank screen from user's perspective, while `ListView` would complain if you feed it with an empty list.
 
 But sometimes, you might also want to render a more meaningful empty screen rather than just a blank screen. Then you can override `buildEmpty` method.
 
 ```dart
-class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
+class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyValue<List<String>> {
   final Future<List<String>> future;
 
   const MyListWidget({Key key, this.future}) : super(key: key);
@@ -199,10 +199,10 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
     return buildFuture(future);
   }
 
-  // Instead of implement buildData, you should implement buildContent as minimal implementation
+  // Instead of implement buildValue, you should implement buildContent as minimal implementation
   @override
   Widget buildContent(BuildContext context, List<String> content) {
-    // Implement contract from WithEmptyData to build not empty content
+    // Implement contract from WithEmptyValue to build not empty content
 
     // content will never be empty
     assert(content.isNotEmpty);
@@ -223,9 +223,9 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
 }
 ```
 
-## Handle empty data model in `WithEmptyData`
+## Handle empty data model in `WithEmptyValue`
 
-By default `WithEmptyData` is smart enough to understand the common data types:
+By default `WithEmptyValue` is smart enough to understand the common data types:
 
 * `null` is always treated as `empty content`
 * Anything implements `Iterable`
@@ -233,10 +233,10 @@ By default `WithEmptyData` is smart enough to understand the common data types:
   * 3rd party collection types, such as `BuiltList`, `KtList`
 * `Map`, probably parsed from a json object or so.
 
-But if you're using a customized data object, which isn't a `Map` or `Iterable`, or you want to do have your own implementation logic, then you will need to override `checkIsDataEmpty` method, or you might get an `UnsupportedError`.
+But if you're using a customized data object, which isn't a `Map` or `Iterable`, or you want to do have your own implementation logic, then you will need to override `checkIsValueEmpty` method, or you might get an `UnsupportedError`.
 
 ```dart
-class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
+class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyValue<List<String>> {
   final Future<List<String>> future;
 
   const MyListWidget({Key key, this.future}) : super(key: key);
@@ -246,10 +246,10 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
     return buildFuture(future);
   }
 
-  // Instead of implement buildData, you should implement buildContent as minimal implementation
+  // Instead of implement buildValue, you should implement buildContent as minimal implementation
   @override
   Widget buildContent(BuildContext context, List<String> content) {
-    // Implement contract from WithEmptyData to build not empty content
+    // Implement contract from WithEmptyValue to build not empty content
 
     // content will never be empty
     assert(content.isNotEmpty);
@@ -261,16 +261,16 @@ class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, 
   }
 
   @override
-  bool checkIsDataEmpty(List<String> data) {
+  bool checkIsValueEmpty(List<String> value) {
     // Only count non-empty string
-    return data.where((e) => e.isNotEmpty).isEmpty;
+    return value.where((e) => e.isNotEmpty).isEmpty;
   }
 }
 ```
 
 ## Load data asynchronously with `Request`
 
-Loading data from network or data base is a extremely common behaviour of majority of the apps. Unfortunately `Future` or `Stream` is kind of too low level to implement app's common requirements.
+Loading data from network or database is a extremely common behaviour of majority of the apps. Unfortunately `Future` or `Stream` is kind of too low level to implement app's common requirements.
 
 `Request` is a production-ready abstraction of common behavior that loads data from either an API or making a query to database.
 
@@ -305,7 +305,7 @@ class MySearchRequest extends Request<List<SearchItem>> {
 Here is the Widget to render the search result:
 
 ```dart
-class SearchResultView extends StatelessWidget with BuildAsyncResult<List<SearchItem>>, WithEmptyData<List<SearchItem>> {
+class SearchResultView extends StatelessWidget with BuildAsyncResult<List<SearchItem>>, WithEmptyValue<List<SearchItem>> {
   final MySearchRequest request;
 
   SearchResultView(this.request);
@@ -464,8 +464,8 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
   }
 
   @override
-  Widget buildData(BuildContext context, String data) {
-    return Text(data);
+  Widget buildValue(BuildContext context, String value) {
+    return Text(value);
   }
 
   @override
@@ -488,13 +488,13 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
 }
 ```
 
-**HINT**  `WithEmptyData`  can be used with`BuildResultListenable` to handle empty content too.
+**HINT**  `WithEmptyValue`  can be used with`BuildResultListenable` to handle empty content too.
 
 ## Consume `ValueListenable` with `BuildValueListenable`
 
 Similar to `BuildResultListenable`, built-in `ValueListenable` can be consumed with `BuildValueListenable` with compatible manner.
 
-**HINT**  `WithEmptyData`  can be used with`BuildValueListenable` to handle empty content too.
+**HINT**  `WithEmptyValue`  can be used with`BuildValueListenable` to handle empty content too.
 
 ## License
 
