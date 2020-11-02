@@ -3,7 +3,14 @@
 ## [0.0.3] - 2020-11-03
 
 * Fixed lint issues
-* Rplaced `ResultStore` with `ResultNotifier` and `ResultListenable` to more aligned to FLutter standard
+* Replaced `ResultStore` with `ResultNotifier` and `ResultListenable` to more aligned to FLutter standard
+* Restructure the files
+* Rewrite readme from scratch
+* Rewrite the example
+* Added the concept design
+* Removed the temporary example files
+* Renaming the methods/properties to align to the protocol
+* Reimplement the builders with extension to comply to protocol/contract/actions model
 
 ## [0.0.2-beta1] - 2020-11-02
 
