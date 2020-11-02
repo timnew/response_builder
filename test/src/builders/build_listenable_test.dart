@@ -21,12 +21,12 @@ class TestValueWidget extends StatelessWidget
 
 class TestResultWidget extends StatelessWidget
     with BuildResultListenable<String> {
-  final ResultStore<String> store;
+  final ResultNotifier<String> notifier;
 
-  const TestResultWidget(this.store);
+  const TestResultWidget(this.notifier);
 
   @override
-  Widget build(BuildContext context) => TestBench(child: buildStore(store));
+  Widget build(BuildContext context) => TestBench(child: buildResultListenable(notifier));
 
   @override
   Widget buildData(BuildContext context, String data) => ContentWidget(data);
@@ -53,33 +53,33 @@ void main() {
     useDefaultRenders();
 
     testWidgets("build value", (WidgetTester tester) async {
-      final store = ResultStore<String>("data");
+      final notifier = ResultNotifier<String>("data");
 
-      await tester.pumpWidget(TestResultWidget(store));
+      await tester.pumpWidget(TestResultWidget(notifier));
 
       findContentWidget("data").shouldFindOne();
 
-      store.putValue("new data");
+      notifier.putValue("new data");
       await tester.pump();
 
       findContentWidget("new data").shouldFindOne();
     });
 
     testWidgets("build error", (WidgetTester tester) async {
-      final store = ResultStore<String>("data");
+      final notifier = ResultNotifier<String>("data");
 
-      await tester.pumpWidget(TestResultWidget(store));
+      await tester.pumpWidget(TestResultWidget(notifier));
 
       findContentWidget("data").shouldFindOne();
       findErrorWidget().shouldFindNothing();
 
-      store.putError("error");
+      notifier.putError("error");
       await tester.pump();
 
       findContentWidget().shouldFindNothing();
       findErrorWidget("error").shouldFindOne();
 
-      store.putValue("new data");
+      notifier.putValue("new data");
       await tester.pump();
 
       findContentWidget("new data").shouldFindOne();

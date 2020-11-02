@@ -1,43 +1,22 @@
 import 'package:async/async.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:response_builder/src/update_actions.dart';
 
-import 'update_actions.dart';
-export 'update_actions.dart';
-
-/// [ResultStore] is a listenable data source that holds 2-state synchronous result, which could be either `data` or `error`.
-/// [ResultStore] is very similar to [ValueListenable] except it understands 2-state [Result].
+/// An interface for subclasses of [Listenable] that expose a [result].
 ///
-/// [ResultStore] is designed to be used with [BuildResultListenable] protocol.
-/// It can be consumed with [BuildResultListenable.buildStore].
+/// This interface is implemented by [ResultNotifier]
 ///
-/// [ResultStore] can be instantiate directly, if no customized behavior is needed.
-/// Or a derived class can be created to add more dedicated behavior.
+/// See also:
 ///
-/// 2-state result is represented with [Result] from [package:async](https://pub.dev/packages/async)
-///
-/// Same as [ValueListenable], initial value is required when [ResultStore] is initialized.
-/// To use error as initial value, use [ResultStore.error] factory method.
-class ResultStore<T> {
-  final ValueNotifier<Result<T>> _notifier;
+///  * [BuildResultListenable], a minx that enables widget to work with [ResultListenable
+abstract class ResultListenable<T> implements Listenable {
+  Result<T> get result;
 
-  /// Get underline [ValueListenable]
-  ValueListenable<Result<T>> get listenable => _notifier;
-
-  /// Create [ResultStore] with [value]
-  ResultStore(T value) : _notifier = ValueNotifier(Result.value(value));
-
-  /// Create [ResultStore] with [error]
-  /// [stackTrace] is optional, will be `null` if not specified.
-  ResultStore.error(Object error, [StackTrace stackTrace])
-      : _notifier = ValueNotifier(Result.error(error, stackTrace));
-
-  /// Get the 2-state result
-  Result<T> get result => _notifier.value;
-
-  /// Check if store contains a value
+  /// Check whether result is a value
   bool get hasValue => result.isValue;
 
-  /// Check if store contains an error
+  /// Check whether result is an error
   bool get hasError => result.isError;
 
   /// Get the value of the [result]
@@ -61,14 +40,42 @@ class ResultStore<T> {
   /// Throws [StateError] if value has a value
   StackTrace get stackTrace {
     if (!hasError) throw StateError("Expect an error but got an value");
+
     return result.asError.stackTrace;
+  }
+}
+
+/// [ResultNotifier] is just like [ValueNotifier] but support to hold error along with value.
+///
+/// [ResultNotifier] holds 2-state [Result], which could be either a data or an error.
+///
+/// When [ResultNotifier.result] changes, it notifies its listeners
+class ResultNotifier<T> extends ChangeNotifier with ResultListenable<T> {
+  Result<T> _result;
+
+  /// Create [ResultNotifier] with [value]
+  ResultNotifier(T value) : this._(Result.value(value));
+
+  /// Create [ResultNotifier] with [error]
+  /// [stackTrace] is optional, will be `null` if not specified.
+  ResultNotifier.error(Object error, [StackTrace stackTrace]) : this._(Result.error(error, stackTrace));
+
+  ResultNotifier._(this._result);
+
+  /// Get 2-state result
+  Result<T> get result => _result;
+
+  /// Set 2-state result
+  set result(Result<T> newResult) {
+    _result = newResult;
+    notifyListeners();
   }
 
   /// Put [value] into store
   ///
   /// This method will notify store's listeners
   T putValue(T value) {
-    _notifier.value = Result.value(value);
+    result = Result.value(value);
     return value;
   }
 
@@ -77,7 +84,7 @@ class ResultStore<T> {
   ///
   /// This method will notify store's listeners
   void putError(Object error, [StackTrace stackTrace]) {
-    _notifier.value = Result.error(error, stackTrace);
+    result = Result.error(error, stackTrace);
   }
 
   /// Update store value with [updater] if store holds a value
@@ -127,4 +134,21 @@ class ResultStore<T> {
 
     return putValue(fixer(error));
   }
+
+  ValueListenable<Result<T>> asValueListenable() => _ValueListenableWrapper(this);
+}
+
+class _ValueListenableWrapper<T> implements ValueListenable<Result<T>> {
+  final ResultNotifier<T> _listenable;
+
+  _ValueListenableWrapper(this._listenable);
+
+  @override
+  void addListener(void Function() listener) => _listenable.addListener(listener);
+
+  @override
+  void removeListener(void Function() listener) => _listenable.removeListener(listener);
+
+  @override
+  Result<T> get value => _listenable.result;
 }

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:response_builder/builder_only.dart';
+import 'package:response_builder/response_builder.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'update_actions.dart';
-export 'update_actions.dart';
 
 /// [Request] is a listenable data source that loads data in either synchronous or asynchronous manner.
 ///
@@ -47,7 +47,7 @@ export 'update_actions.dart';
 ///       * [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern) is highly recommended,
 ///
 /// [Request] is designed to handle asynchronous scenario, so its API is more complex and could be more expensive to instantiate.
-/// To deal with synchronous data only, consider use [ResultStore] instead of [Request]
+/// To deal with synchronous data only, consider use [ResultNotifier] instead of [Request]
 abstract class Request<T> {
   final BehaviorSubject<T> _subject;
 

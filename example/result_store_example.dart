@@ -35,7 +35,7 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(fieldName),
-        buildStore(fieldStore),
+        buildResultListenable(fieldStore),
       ],
     );
   }

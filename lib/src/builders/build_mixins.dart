@@ -1,9 +1,9 @@
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:response_builder/response_builder.dart';
 
 import 'package:response_builder/src/request.dart';
-import 'package:response_builder/src/result_store.dart';
 
 import 'default_build_actions.dart';
 
@@ -70,14 +70,12 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
   /// Contract to to build view when data is being loaded
   ///
   /// By default it uses [DefaultBuildActions]
-  Widget buildWaiting(BuildContext context) =>
-      DefaultBuildActions.buildWaiting(context);
+  Widget buildWaiting(BuildContext context) => DefaultBuildActions.buildWaiting(context);
 
   /// Contract to to build view when [error] occurred
   ///
   /// By default it build view with [DefaultBuildActions]
-  Widget buildError(BuildContext context, Object error) =>
-      DefaultBuildActions.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 
   /// Implementation of [AsyncSnapShotBuilder] of [FutureBuilder] or [StreamBuilder], which builds view from [AsyncSnapshot].
   ///
@@ -113,22 +111,14 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
   /// [key] specifies [FutureBuilder]'s key
   /// [initialData] specifies [FutureBuilder]'s initial value
   Widget buildFuture(Future<T> future, {Key key, T initialData}) =>
-      FutureBuilder(
-          key: key,
-          future: future,
-          builder: buildAsyncSnapshot,
-          initialData: initialData);
+      FutureBuilder(key: key, future: future, builder: buildAsyncSnapshot, initialData: initialData);
 
   /// Build view for a [Stream] with [StreamBuilder]
   ///
   /// [key] specifies [StreamBuilder]'s key
   /// [initialData] specifies [StreamBuilder]'s initial value
   Widget buildStream(Stream<T> stream, {Key key, T initialData}) =>
-      StreamBuilder(
-          key: key,
-          stream: stream,
-          builder: buildAsyncSnapshot,
-          initialData: initialData);
+      StreamBuilder(key: key, stream: stream, builder: buildAsyncSnapshot, initialData: initialData);
 
   /// Build view for a [Request] with [StreamBuilder]
   ///
@@ -143,33 +133,33 @@ mixin BuildValueListenable<T> implements BuildData<T> {
   /// Build view for [ValueListenable] with [ValueListenableBuilder]
   ///
   /// [key] specifies [StreamBuilder]'s key
-  Widget buildValueListenable(ValueListenable<T> listenable, {Key key}) =>
-      ValueListenableBuilder(
+  Widget buildValueListenable(ValueListenable<T> listenable, {Key key}) => ValueListenableBuilder(
         key: key,
         valueListenable: listenable,
-        builder: (BuildContext context, T value, _) =>
-            buildData(context, value),
+        builder: (BuildContext context, T value, _) => buildData(context, value),
       );
 }
 
-/// Protocol that builds 2-state data from [ValueListenable],
-/// error is supported beside of successful value.
+/// Protocol that builds 2-state data from [ResultNotifier], which is similar to [ValueListenable] but holds 2-state result.
 ///
 /// [Result] from [package:async](https://pub.dev/packages/async) is used to represents 2-state data
 mixin BuildResultListenable<T> implements BuildResult<T> {
   /// Contract to to build view when [error] occurred
   ///
   /// By default it build view with [DefaultBuildActions]
-  Widget buildError(BuildContext context, Object error) =>
-      DefaultBuildActions.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
+
+  /// Build view for [ResultNotifier] with [ValueListenableBuilder]
+  ///
+  /// [key] specifies [StreamBuilder]'s key
+  Widget buildResultListenable(ResultNotifier<T> listenable, {Key key}) =>
+      buildValueListenable(listenable.asValueListenable(), key: key);
 
   /// Build view for [ValueListenable] with [ValueListenableBuilder]
   /// [ValueListenable] holds 2-state [Result] instead of plain data
   ///
-  /// [key] specifies [StreamBuilder]'s key
-  Widget buildResultListenable(ValueListenable<Result<T>> listenable,
-          {Key key}) =>
-      ValueListenableBuilder(
+  /// [key] specifies [ValueListenableBuilder]'s key
+  Widget buildValueListenable(ValueListenable<Result<T>> listenable, {Key key}) => ValueListenableBuilder(
         key: key,
         valueListenable: listenable,
         builder: (BuildContext context, Result<T> value, _) {
@@ -180,10 +170,4 @@ mixin BuildResultListenable<T> implements BuildResult<T> {
           }
         },
       );
-
-  /// Build view for [ResultStore] with [ValueListenableBuilder]
-  ///
-  /// [key] specifies [StreamBuilder]'s key
-  Widget buildStore(ResultStore<T> store, {Key key}) =>
-      buildResultListenable(store.listenable, key: key);
 }
