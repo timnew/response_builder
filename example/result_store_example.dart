@@ -1,16 +1,13 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:response_builder/response_builder.dart';
 
 class FormData {
-  final Map<String, ResultStore<String>> fields;
+  final Map<String, ResultNotifier<String>> fields;
 
   FormData(Map<String, String> initialValues)
       : fields = Map.fromIterables(
           initialValues.keys, // field keys
-          initialValues.values.map((initialValue) =>
-              ResultStore(initialValue)), // wrap initial with ResultStore
+          initialValues.values.map((initialValue) => ResultNotifier(initialValue)), // wrap initial with ResultNotifier
         );
 
   void invalidField(String fieldName) {
@@ -24,10 +21,9 @@ class FormData {
 
 class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
   final String fieldName;
-  final ResultStore<String> fieldStore;
+  final ResultNotifier<String> fieldStore;
 
-  const FormFieldView({Key key, this.fieldName, this.fieldStore})
-      : super(key: key);
+  const FormFieldView({Key key, this.fieldName, this.fieldStore}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
