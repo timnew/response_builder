@@ -5,11 +5,15 @@ library response_builder;
 /// * Data Source
 ///   * [Request] - Listenable data source for 3-state asynchronous data
 ///   * [ResultListenable] and [ResultNotifier] - Listenable data source for 2-state synchronized data
-/// * Build Mixins
-///   * [BuildAsyncResult] - Mixin that builds asynchronous data from [Future], [Stream] or [Request]
-///   * [BuildResultListenable] - Mixin that builds 2-state synchronous result from [ResultListenable]
-///   * [BuildValueListenable] - Mixin that builds [ValueListenable], in a library compatible wat
-///   * [WithEmptyValue] - Mixin that handles empty value, can be use any of the build mixin above
+/// * Build Protocols
+///   * [BuildAsyncSnapshot] - This protocol enable [BuildAsyncSnapshotActions] to consume 3-state data from [Future], [Stream] or [Request]
+///   * [BuildResult] - This protocol enable enables [BuildResultListenable] to consume 2-state data from [ResultListenable]
+///   * [BuildValue] - This protocol enable enables [BuildValueListenable] to consume value from [ValueListenable]
+///   * [WithEmptyValue] - Protocol implement [BuildValue.buildValue] contract, which enables building actions to handle empty value
+/// * Build Actions
+///   * [BuildAsyncSnapshotActions] - Actions run on [BuildAsyncSnapshot] protocol to consume 3-state `AsyncResult` data from [Future], [Stream] or [Request],
+///   * [BuildResultListenable] - Actions run on [BuildResult] protocol, to consume 2-state `Result` from [ResultListenable]
+///   * [BuildValueListenable] - Actions run on [BuildValue] protocol, to consume value from [ValueListenable]
 ///
 export 'src/builders/default_build_actions.dart';
 export 'src/builders/build_protocols.dart';

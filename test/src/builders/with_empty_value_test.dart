@@ -82,7 +82,7 @@ void main() {
       });
     });
 
-    group("with BuildAsyncResult", () {
+    group("with BuildAsyncSnapshot", () {
       testWidgets("Render content", (WidgetTester tester) async {
         final widget = TestFutureWithEmptyWidget();
         await tester.pumpWidget(widget);
