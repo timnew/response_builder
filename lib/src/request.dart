@@ -11,7 +11,7 @@ import 'update_actions.dart';
 /// Unlike [Future] and [Stream], [Request] also provide method to read or write result in both synchronous or asynchronous way.
 ///
 /// [Request] is designed to be used with [BuildAsyncResult] protocol.
-/// It can be consumed with [BuildAsyncResult.buildRequest] as [Future] and [Protocol].
+/// It can be consumed with [BuildAsyncResult.buildRequest] as same as [Future] and [Stream].
 ///
 /// [Request] is abstract class, a derived class should be created for particular use case.
 /// Derived class should at least implement [load] method to explicitly specify how request should load data.
@@ -27,23 +27,7 @@ import 'update_actions.dart';
 /// [Request] only start to load data when [Request.resultStream] is listened, typically it is when Request is listenable by a widget
 /// with [BuildAsyncResult] protocol. This behavior can be customized for different scenarios:
 ///
-/// * Expect to control when to load data, such as when user clicks load button or so
-///   * Set [initialValue] with a legal empty value. For more details about "legal empty value", check below.
-///   * Set [loadOnListened] to `false`, so data loading won't triggered automatically
-///   * Leave [initialLoadQuietly] to `false`, so a proper loading indicator would show when loading is triggered
-/// * Render UI with local cached value first, and refresh it on it fly
-///   * Set [initialValue] with cached result.
-///   * Leave [loadOnListened] to `true`, so a fresh load would be triggered when UI data is used.
-///   * Set [initialLoadQuietly] to `true`, so loading view won't happen when refresh is happening in background
-///   * To only refresh data when cache is expired, [loadOnListened] can only set to `true` when cache is expired.
-///
-/// [initialValue] provides the initial data to build UI before the data is loaded asynchronously
-///   * By default Leave it unset or give `null`, UI would render a loading view before result available
-///   * Give [initialValue] if a data view is expected before result is available
-///     * It could a data loaded from sync cache
-///     * An legal "empty value" should be given instead of using `null`:
-///       * Empty [List] or other equivalent should be given if data is collection type.
-///       * [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern) is highly recommended,
+/// The loading behaviour of [Request] can be customized for different scenario, check document for [Request] constructor for more detail
 ///
 /// [Request] is designed to handle asynchronous scenario, so its API is more complex and could be more expensive to instantiate.
 /// To deal with synchronous data only, consider use [ResultNotifier] instead of [Request]
@@ -52,7 +36,7 @@ abstract class Request<T> {
 
   /// The stream that provides the latest result of current request
   ///
-  /// [Widget] can consume the data from the stream with [BuildAsyncResult.buildStream]
+  /// Widget can consume the data from the stream with [BuildAsyncResult.buildStream]
   /// Or use [BuildAsyncResult.buildRequest] to consume the whole request.
   Stream<T> get resultStream => _subject;
 
@@ -77,7 +61,7 @@ abstract class Request<T> {
   ///   * Give [initialValue] if a data view is expected before result is available
   ///     * It could a data loaded from sync cache
   ///     * An legal "empty value" should be given instead of using `null`:
-  ///       * Empty [List] or other equivalent should be given if data is collection type.
+  ///       * Empty list or other equivalent should be given if data is collection type.
   ///       * [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern) is highly recommended,
   Request({
     T initialValue,

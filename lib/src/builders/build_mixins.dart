@@ -77,7 +77,7 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
   /// By default it build view with [DefaultBuildActions]
   Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 
-  /// Implementation of [AsyncSnapShotBuilder] of [FutureBuilder] or [StreamBuilder], which builds view from [AsyncSnapshot].
+  /// Implementation of `AsyncSnapShotBuilder` for [FutureBuilder] or [StreamBuilder], which builds view from [AsyncSnapshot].
   ///
   /// * Initial value / cached value/error is respected with high-priority
   /// * Build initial view when hadn't connect to a data source, it is likely to happen when data source is null
