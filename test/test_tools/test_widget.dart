@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:response_builder/builder_only.dart';
+import 'package:response_builder/response_builder.dart';
 
 export 'finder_extension.dart';
 
@@ -56,9 +56,8 @@ class ErrorWidget extends StatelessWidget {
   }
 }
 
-Finder findErrorWidget([Object error]) => error == null
-    ? find.byType(ErrorWidget)
-    : find.widgetWithText(ErrorWidget, "$error");
+Finder findErrorWidget([Object error]) =>
+    error == null ? find.byType(ErrorWidget) : find.widgetWithText(ErrorWidget, "$error");
 
 class WaitingWidget extends StatelessWidget {
   @override
@@ -71,10 +70,8 @@ final findWaitingWidget = find.byType(WaitingWidget);
 
 void useDefaultRenders() {
   setUpAll(() {
-    DefaultBuildActions.registerDefaultWaitingBuilder(
-        (context) => WaitingWidget());
-    DefaultBuildActions.registerDefaultErrorBuilder(
-        (context, error) => ErrorWidget(error));
+    DefaultBuildActions.registerDefaultWaitingBuilder((context) => WaitingWidget());
+    DefaultBuildActions.registerDefaultErrorBuilder((context, error) => ErrorWidget(error));
   });
 
   tearDownAll(() {
@@ -99,6 +96,5 @@ class ContentWidget extends StatelessWidget {
   }
 }
 
-Finder findContentWidget([String content]) => content == null
-    ? find.byType(ContentWidget)
-    : find.widgetWithText(ContentWidget, content);
+Finder findContentWidget([String content]) =>
+    content == null ? find.byType(ContentWidget) : find.widgetWithText(ContentWidget, content);
