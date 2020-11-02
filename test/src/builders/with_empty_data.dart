@@ -28,7 +28,7 @@ class TestWidget extends StatelessWidget with WithEmptyValue<String> {
 }
 
 class TestFutureWithEmptyWidget extends StatelessWidget
-    with BuildAsyncResult<String>, WithEmptyValue<String> {
+    with BuildAsyncSnapshot<String>, WithEmptyValue<String> {
   final completer = Completer<String>();
 
   @override

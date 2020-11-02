@@ -12,5 +12,9 @@ The library is built with a set of basic concepts, and rules, so it can be as fl
 * **Contract** - A method of `protocol` which must be or can be overrode.
   * `Contract` is used as connection point of host class to `Protocol`. Such as `BuildAsyncResult` requires host class to implement `buildValue` contract.
   * One `Protocol` can implement another `Protocol`'s `Contract`, so they can works together, e.g. `WithEmptyValue` implements `buildValue` contract of `BuildAsyncResult`.
+* **Actions** - `Actions` is a bunch of `Behavior` can be done on the types that comply to a certain `Protocol`
+   * `Actions` lives as `Extension` in code
+   * `Actions` holds a bunch of `Behaviour`
+   * `Actions` won't hold `Contract`
 
 ![Concept Design](concept_design.png)

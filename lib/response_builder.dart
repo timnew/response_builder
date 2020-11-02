@@ -1,10 +1,5 @@
 library response_builder;
 
-import 'package:flutter/foundation.dart';
-import 'package:response_builder/src/builders/build_mixins.dart';
-import 'package:response_builder/src/builders/with_empty_value.dart';
-import 'package:response_builder/src/result_listenable.dart';
-
 /// Key types
 ///
 /// * Data Source
@@ -17,8 +12,8 @@ import 'package:response_builder/src/result_listenable.dart';
 ///   * [WithEmptyValue] - Mixin that handles empty value, can be use any of the build mixin above
 ///
 export 'src/builders/default_build_actions.dart';
-export 'src/builders/build_mixins.dart';
+export 'src/builders/build_protocols.dart';
+export 'src/builders/build_actions.dart';
 export 'src/builders/build_with_builder.dart';
-export 'src/builders/with_empty_value.dart';
 export 'src/request.dart';
 export 'src/result_listenable.dart';

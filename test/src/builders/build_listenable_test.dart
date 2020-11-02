@@ -5,22 +5,19 @@ import 'package:response_builder/response_builder.dart';
 
 import '../../test_tools/test_widget.dart';
 
-class TestValueWidget extends StatelessWidget
-    with BuildValueListenable<String> {
+class TestValueWidget extends StatelessWidget with BuildValue<String> {
   final ValueListenable<String> listenable;
 
   TestValueWidget(this.listenable);
 
   @override
-  Widget build(BuildContext context) =>
-      TestBench(child: buildValueListenable(listenable));
+  Widget build(BuildContext context) => TestBench(child: buildValueListenable(listenable));
 
   @override
   Widget buildValue(BuildContext context, String value) => ContentWidget(value);
 }
 
-class TestResultWidget extends StatelessWidget
-    with BuildResultListenable<String> {
+class TestResultWidget extends StatelessWidget with BuildResult<String> {
   final ResultNotifier<String> notifier;
 
   const TestResultWidget(this.notifier);

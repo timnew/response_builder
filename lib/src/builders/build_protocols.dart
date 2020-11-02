@@ -1,9 +1,5 @@
-import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:response_builder/response_builder.dart';
-
-import 'package:response_builder/src/request.dart';
+import 'package:flutter/widgets.dart';
 
 import 'default_build_actions.dart';
 
@@ -13,7 +9,7 @@ import 'default_build_actions.dart';
 ///
 /// * To build a value from [ValueListenable], use [BuildValueListenable]
 /// * To build 2-state sync result from [ResultListenable], consider use [BuildResultListenable]
-/// * To build 3-state async result from [Request], [Future] or [Stream], consider use [BuildAsyncResult]
+/// * To build 3-state async result from [Request], [Future] or [Stream], consider use [BuildAsyncSnapshot]
 mixin BuildValue<T> {
   /// Contract to to build view when [value[ is loaded
   ///
@@ -28,10 +24,10 @@ mixin BuildValue<T> {
 ///
 /// * To build a value from [ValueListenable], use [BuildValueListenable]
 /// * To build 2-state sync result from [ResultListenable], consider use [BuildResultListenable]
-/// * To build 3-state async result from [Request], [Future] or [Stream], consider use [BuildAsyncResult]
+/// * To build 3-state async result from [Request], [Future] or [Stream], consider use [BuildAsyncSnapshot]
 mixin BuildResult<T> implements BuildValue<T> {
   /// Contract to to build view when [error] occurred
-  Widget buildError(BuildContext context, Object error);
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 }
 
 /// Protocol that builds 3-state async result, which can be:
@@ -41,17 +37,17 @@ mixin BuildResult<T> implements BuildValue<T> {
 /// * error: an error occurred
 /// * value: data if properly loaded
 ///
-/// [BuildAsyncResultProtocol] is considered as a conceptual protocol, which should be rarely used directly.
-/// [BuildAsyncResult] is a ready-to-use implementation of [BuildAsyncResultProtocol]
-mixin BuildAsyncResultProtocol<T> implements BuildResult<T> {
+/// [BuildAsyncResult] is considered as a conceptual protocol, which should be rarely used directly.
+/// [BuildAsyncSnapshot] is a ready-to-use implementation of [BuildAsyncResult]
+mixin BuildAsyncResult<T> implements BuildResult<T> {
   /// Contract to build view when data source hasn't connected yet
-  Widget buildNoDataSource(BuildContext context);
+  Widget buildNoDataSource(BuildContext context) => buildLoading(context);
 
   /// Contract to build view when data is being loaded
-  Widget buildLoading(BuildContext context);
+  Widget buildLoading(BuildContext context) => DefaultBuildActions.buildLoading(context);
 
   /// Contract to build view when [error] occurred
-  Widget buildError(BuildContext context, Object error);
+  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
 }
 
 /// Protocol that builds 3-state async result from a [Future], a [Stream] or a [Request]
@@ -62,7 +58,7 @@ mixin BuildAsyncResultProtocol<T> implements BuildResult<T> {
 ///
 /// By default, [buildError] invokes [DefaultBuildActions.buildError]
 /// [buildLoading] invokes [DefaultBuildActions.buildLoading]
-mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
+mixin BuildAsyncSnapshot<T> implements BuildAsyncResult<T> {
   /// Contract to to build view when data source hasn't connected yet
   ///
   /// By default it builds waiting view
@@ -106,69 +102,54 @@ mixin BuildAsyncResult<T> implements BuildAsyncResultProtocol<T> {
         throw StateError("Bad AsyncSnapshot $snapshot}");
     }
   }
-
-  /// Build view for a [Future] with [FutureBuilder]
-  ///
-  /// [key] specifies [FutureBuilder]'s key
-  /// [initialData] specifies [FutureBuilder]'s initial value
-  Widget buildFuture(Future<T> future, {Key key, T initialData}) =>
-      FutureBuilder(key: key, future: future, builder: buildAsyncSnapshot, initialData: initialData);
-
-  /// Build view for a [Stream] with [StreamBuilder]
-  ///
-  /// [key] specifies [StreamBuilder]'s key
-  /// [initialData] specifies [StreamBuilder]'s initial value
-  Widget buildStream(Stream<T> stream, {Key key, T initialData}) =>
-      StreamBuilder(key: key, stream: stream, builder: buildAsyncSnapshot, initialData: initialData);
-
-  /// Build view for a [Request] with [StreamBuilder]
-  ///
-  /// [key] specifies [StreamBuilder]'s key
-  /// [initialData] specifies [StreamBuilder]'s initial value
-  Widget buildRequest(Request<T> request, {Key key, T initialData}) =>
-      buildStream(request?.resultStream, key: key, initialData: initialData);
 }
 
-/// Protocol that builds always-exist data from [ValueListenable]
-mixin BuildValueListenable<T> implements BuildValue<T> {
-  /// Build view for [ValueListenable] with [ValueListenableBuilder]
-  ///
-  /// [key] specifies [StreamBuilder]'s key
-  Widget buildValueListenable(ValueListenable<T> listenable, {Key key}) => ValueListenableBuilder(
-        key: key,
-        valueListenable: listenable,
-        builder: (BuildContext context, T value, _) => buildValue(context, value),
-      );
-}
-
-/// Protocol that builds 2-state data from [ResultNotifier], which is similar to [ValueListenable] but holds 2-state result.
+/// Protocol to build data which potentially could be empty
 ///
-/// [Result] from [package:async](https://pub.dev/packages/async) is used to represents 2-state data
-mixin BuildResultListenable<T> implements BuildResult<T> {
-  /// Contract to to build view when [error] occurred
+/// When data is empty data, it build the widget with [buildEmpty], which render an empty view by default.
+/// When data is not empty, it builds the widget with [buildContent], which needs to be implemented by developer.
+///
+/// [WithEmptyValue] implements [BuildValue] contract, so it works automatically with protocols depends on it,
+/// includes [BuildAsyncSnapshot], [BuildValueListenable], and [BuildResultListenable].
+mixin WithEmptyValue<T> implements BuildValue<T> {
+  /// Check whether data is empty
   ///
-  /// By default it build view with [DefaultBuildActions]
-  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
+  /// By default, [checkIsValueEmpty] understands
+  ///
+  /// * Anything implements [Iterable], which includes
+  ///   * Dart built-in collection types, such as [List], [Set], etc.
+  ///   * 3rd-party collection types, such as `BuiltList` from [package:built_collection](https://pub.dev/packages/built_collection) or `KtList` from [package:kt_dart](https://pub.dev/packages/kt_dart)
+  /// * [Map], which might be parsed from json or loaded from other storage
+  /// * `null` is always considered as empty
+  ///
+  /// Throws [UnsupportedError] when [T] is not [Iterable], [Map], or `null`.
+  /// Implementer should override this contract when used with customized data type.
+  bool checkIsValueEmpty(T value) {
+    if (value == null) return true;
+    if (value is Iterable) return value.isEmpty;
+    if (value is Map) return value.entries.isEmpty;
 
-  /// Build view for [ResultNotifier] with [ValueListenableBuilder]
-  ///
-  /// [key] specifies [StreamBuilder]'s key
-  Widget buildResultListenable(ResultNotifier<T> listenable, {Key key}) =>
-      buildValueListenable(listenable.asValueListenable(), key: key);
+    throw UnsupportedError("Check empty for $T is not supported");
+  }
 
-  /// Build view for [ValueListenable] with [ValueListenableBuilder]
-  /// [ValueListenable] holds 2-state [Result] instead of plain value
+  /// Contract to build view when data isn't empty
   ///
-  /// [key] specifies [ValueListenableBuilder]'s key
-  Widget buildValueListenable(ValueListenable<Result<T>> listenable, {Key key}) => ValueListenableBuilder(
-        key: key,
-        valueListenable: listenable,
-        builder: (BuildContext context, Result<T> value, _) {
-          if (value.isValue) {
-            return buildValue(context, value.asValue.value);
-          } else {
-            return buildError(context, value.asError.error);
-          }
-        },
-      );
+  /// Implementer should always implement this contract
+  Widget buildContent(BuildContext context, T content);
+
+  /// Contract to build view when data is empty
+  ///
+  /// By default it builds an empty [Container], which is renders nothing on screen.
+  ///
+  /// Implementer can override this contract to change other behaviour
+  Widget buildEmpty(BuildContext context, T emptyContent) => Container();
+
+  /// Behavior implementation of contract of [BuildValue]
+  ///
+  /// Implementer should rarely need to override this contract when using [WithEmptyValue],
+  /// or it is likely to be misuse.
+  Widget buildValue(BuildContext context, T value) {
+    if (checkIsValueEmpty(value)) return buildEmpty(context, value);
+    return buildContent(context, value);
+  }
 }

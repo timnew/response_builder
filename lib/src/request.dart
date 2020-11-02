@@ -10,8 +10,8 @@ import 'update_actions.dart';
 /// Similar to [Future] and [Stream], [Request] can hold 3-state result, which could `data`, `error` or `waiting`.
 /// Unlike [Future] and [Stream], [Request] also provide method to read or write result in both synchronous or asynchronous way.
 ///
-/// [Request] is designed to be used with [BuildAsyncResult] protocol.
-/// It can be consumed with [BuildAsyncResult.buildRequest] as same as [Future] and [Stream].
+/// [Request] is designed to be used with [BuildAsyncSnapshot] protocol.
+/// It can be consumed with [BuildAsyncSnapshot.buildRequest] as same as [Future] and [Stream].
 ///
 /// [Request] is abstract class, a derived class should be created for particular use case.
 /// Derived class should at least implement [load] method to explicitly specify how request should load data.
@@ -25,7 +25,7 @@ import 'update_actions.dart';
 /// Depends on whether those parameter fields are mutable or final,[Request] can be either mutable or immutable.
 ///
 /// [Request] only start to load data when [Request.resultStream] is listened, typically it is when Request is listenable by a widget
-/// with [BuildAsyncResult] protocol. This behavior can be customized for different scenarios:
+/// with [BuildAsyncSnapshot] protocol. This behavior can be customized for different scenarios:
 ///
 /// The loading behaviour of [Request] can be customized for different scenario, check document for [Request] constructor for more detail
 ///
@@ -36,8 +36,8 @@ abstract class Request<T> {
 
   /// The stream that provides the latest result of current request
   ///
-  /// Widget can consume the data from the stream with [BuildAsyncResult.buildStream]
-  /// Or use [BuildAsyncResult.buildRequest] to consume the whole request.
+  /// Widget can consume the data from the stream with [BuildAsyncSnapshot.buildStream]
+  /// Or use [BuildAsyncSnapshot.buildRequest] to consume the whole request.
   Stream<T> get resultStream => _subject;
 
   /// Constructor of [Request].

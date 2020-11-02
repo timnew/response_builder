@@ -6,7 +6,7 @@ import 'package:response_builder/response_builder.dart';
 
 import '../../test_tools/test_widget.dart';
 
-class TestFutureWidget extends StatelessWidget with BuildAsyncResult<String> {
+class TestFutureWidget extends StatelessWidget with BuildAsyncSnapshot<String> {
   final Future<String> future;
 
   const TestFutureWidget(this.future);
@@ -32,7 +32,7 @@ class TestRequest extends Request<String> {
   }
 }
 
-class TestRequestWidget extends StatelessWidget with BuildAsyncResult<String> {
+class TestRequestWidget extends StatelessWidget with BuildAsyncSnapshot<String> {
   final TestRequest request;
 
   TestRequestWidget(this.request);
@@ -52,7 +52,7 @@ class TestRequestWidget extends StatelessWidget with BuildAsyncResult<String> {
 void main() {
   useDefaultRenders();
 
-  group("BuildAsyncResult", () {
+  group("BuildAsyncSnapshot", () {
     group("build future", () {
       testWidgets("build future data", (WidgetTester tester) async {
         final completer = Completer<String>();
