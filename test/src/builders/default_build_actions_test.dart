@@ -10,7 +10,8 @@ class TestErrorWidget extends StatelessWidget {
   TestErrorWidget(this.error);
 
   @override
-  Widget build(BuildContext context) => TestBench(child: DefaultBuildActions.buildError(context, error));
+  Widget build(BuildContext context) =>
+      TestBench(child: DefaultBuildActions.buildError(context, error));
 }
 
 class TestWaitingWidget extends StatelessWidget {
@@ -24,28 +25,34 @@ void main() {
   group("default build actions", () {
     final error = "test error message";
 
-    testWidgets("build error with built in builder", (WidgetTester tester) async {
+    testWidgets("build error with built in builder",
+        (WidgetTester tester) async {
       await tester.pumpWidget(TestErrorWidget(error));
 
       find.text(error).shouldFindOne();
     });
 
-    testWidgets("build error with customize builder", (WidgetTester tester) async {
-      DefaultBuildActions.registerDefaultErrorBuilder((context, data) => ErrorWidget(data));
+    testWidgets("build error with customize builder",
+        (WidgetTester tester) async {
+      DefaultBuildActions.registerDefaultErrorBuilder(
+          (context, data) => ErrorWidget(data));
 
       await tester.pumpWidget(TestErrorWidget(error));
 
       findErrorWidget(error).shouldFindOne();
     });
 
-    testWidgets("build waiting with built in builder", (WidgetTester tester) async {
+    testWidgets("build waiting with built in builder",
+        (WidgetTester tester) async {
       await tester.pumpWidget(TestWaitingWidget());
 
       find.byType(CircularProgressIndicator).shouldFindOne();
     });
 
-    testWidgets("build error with customize builder", (WidgetTester tester) async {
-      DefaultBuildActions.registerDefaultLoadingBuilder((context) => EmptyWidget());
+    testWidgets("build error with customize builder",
+        (WidgetTester tester) async {
+      DefaultBuildActions.registerDefaultLoadingBuilder(
+          (context) => EmptyWidget());
 
       await tester.pumpWidget(TestWaitingWidget());
 

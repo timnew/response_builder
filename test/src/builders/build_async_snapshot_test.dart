@@ -32,7 +32,8 @@ class TestRequest extends Request<String> {
   }
 }
 
-class TestRequestWidget extends StatelessWidget with BuildAsyncSnapshot<String> {
+class TestRequestWidget extends StatelessWidget
+    with BuildAsyncSnapshot<String> {
   final TestRequest request;
 
   TestRequestWidget(this.request);

@@ -67,7 +67,9 @@ abstract class Request<T> {
     T initialValue,
     bool loadOnListened = true,
     bool initialLoadQuietly = false,
-  })  : _subject = initialValue != null ? BehaviorSubject.seeded(initialValue) : BehaviorSubject(),
+  })  : _subject = initialValue != null
+            ? BehaviorSubject.seeded(initialValue)
+            : BehaviorSubject(),
         assert(loadOnListened is bool),
         assert(initialLoadQuietly is bool) {
     if (loadOnListened) {
@@ -105,15 +107,18 @@ abstract class Request<T> {
   ///
   /// [action] can either return [T] or `Future<T>`
   /// [Exception] thrown by `action` would be caught as error result
-  Future execute(FutureOr<T> Function() action, {bool quiet: false}) => _execute(action, quiet);
+  Future execute(FutureOr<T> Function() action, {bool quiet: false}) =>
+      _execute(action, quiet);
 
   Future _execute(dynamic futureOrAction, bool quiet) async {
-    assert(futureOrAction is FutureOr<T> || futureOrAction is FutureOr<T> Function());
+    assert(futureOrAction is FutureOr<T> ||
+        futureOrAction is FutureOr<T> Function());
 
     if (!quiet) markAsLoading();
 
     try {
-      final future = futureOrAction is Future ? futureOrAction : futureOrAction();
+      final future =
+          futureOrAction is Future ? futureOrAction : futureOrAction();
       final result = await future;
       putValue(result);
     } on Exception catch (error, stackTrace) {
@@ -170,7 +175,8 @@ abstract class Request<T> {
 
   /// Similar to [currentData], but throws [StateError] when data is not available
   T get ensuredCurrentData {
-    if (!hasValue) throw StateError("Access value when it is not yet available");
+    if (!hasValue)
+      throw StateError("Access value when it is not yet available");
     return currentData;
   }
 
@@ -187,7 +193,8 @@ abstract class Request<T> {
   /// Returns a future which resolves when first data or error fetched
   ///
   /// Future resolves immediately when request holds a data or an error loaded before.
-  Future<T> get firstResult => resultStream.firstWhere((result) => result != null);
+  Future<T> get firstResult =>
+      resultStream.firstWhere((result) => result != null);
 
   /// Update request with [updater] synchronously
   ///

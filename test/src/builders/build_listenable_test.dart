@@ -11,7 +11,8 @@ class TestValueWidget extends StatelessWidget with BuildValue<String> {
   TestValueWidget(this.listenable);
 
   @override
-  Widget build(BuildContext context) => TestBench(child: buildValueListenable(listenable));
+  Widget build(BuildContext context) =>
+      TestBench(child: buildValueListenable(listenable));
 
   @override
   Widget buildValue(BuildContext context, String value) => ContentWidget(value);
@@ -23,7 +24,8 @@ class TestResultWidget extends StatelessWidget with BuildResult<String> {
   const TestResultWidget(this.notifier);
 
   @override
-  Widget build(BuildContext context) => TestBench(child: buildResultListenable(notifier));
+  Widget build(BuildContext context) =>
+      TestBench(child: buildResultListenable(notifier));
 
   @override
   Widget buildValue(BuildContext context, String value) => ContentWidget(value);

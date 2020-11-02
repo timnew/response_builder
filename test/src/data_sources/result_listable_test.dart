@@ -90,7 +90,8 @@ void main() {
       test("update value throws error", () {
         final notifier = ResultNotifier<String>(value);
 
-        expect(() => notifier.updateValue((current) => throw error), throwsA(same(error)));
+        expect(() => notifier.updateValue((current) => throw error),
+            throwsA(same(error)));
       });
 
       test("update value throws non error", () {

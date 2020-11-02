@@ -27,7 +27,8 @@ mixin BuildValue<T> {
 /// * To build 3-state async result from [Request], [Future] or [Stream], consider use [BuildAsyncSnapshot]
 mixin BuildResult<T> implements BuildValue<T> {
   /// Contract to to build view when [error] occurred
-  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) =>
+      DefaultBuildActions.buildError(context, error);
 }
 
 /// Protocol that builds 3-state async result, which can be:
@@ -44,10 +45,12 @@ mixin BuildAsyncResult<T> implements BuildResult<T> {
   Widget buildNoDataSource(BuildContext context) => buildLoading(context);
 
   /// Contract to build view when data is being loaded
-  Widget buildLoading(BuildContext context) => DefaultBuildActions.buildLoading(context);
+  Widget buildLoading(BuildContext context) =>
+      DefaultBuildActions.buildLoading(context);
 
   /// Contract to build view when [error] occurred
-  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) =>
+      DefaultBuildActions.buildError(context, error);
 }
 
 /// Protocol that builds 3-state async result from a [Future], a [Stream] or a [Request]
@@ -67,12 +70,14 @@ mixin BuildAsyncSnapshot<T> implements BuildAsyncResult<T> {
   /// Contract to to build view when data is being loaded
   ///
   /// By default it uses [DefaultBuildActions]
-  Widget buildLoading(BuildContext context) => DefaultBuildActions.buildLoading(context);
+  Widget buildLoading(BuildContext context) =>
+      DefaultBuildActions.buildLoading(context);
 
   /// Contract to to build view when [error] occurred
   ///
   /// By default it build view with [DefaultBuildActions]
-  Widget buildError(BuildContext context, Object error) => DefaultBuildActions.buildError(context, error);
+  Widget buildError(BuildContext context, Object error) =>
+      DefaultBuildActions.buildError(context, error);
 
   /// Implementation of `AsyncSnapShotBuilder` for [FutureBuilder] or [StreamBuilder], which builds view from [AsyncSnapshot].
   ///
