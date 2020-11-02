@@ -1,6 +1,6 @@
 name: response_builder
 description: Work with asynchronously loaded data with ease. Mixins to enable developer to create widget that builds UI with data from different data source. And request/result listenable as high level obvserable data source.
-version: 0.0.2-beta1
+version: 0.0.3
 homepage: https://github.com/timnew/response_builder
 
 environment:
