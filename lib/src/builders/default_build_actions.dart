@@ -9,7 +9,7 @@ class DefaultBuildActions {
 
   DefaultBuildActions._();
 
-  /// Register customized [errorBuilder], which is used by [BuildResultListenable.buildError]
+  /// Register customized [errorBuilder], which is used by [BuildResult.buildError]
   /// and [BuildAsyncResult.buildError] by default.
   static void registerDefaultErrorBuilder(
       ValueWidgetBuilder<Object> errorBuilder) {

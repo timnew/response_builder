@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:response_builder/response_builder.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'update_actions.dart';
+import 'package:response_builder/response_builder.dart';
 
 /// [Request] is a listenable data source that loads data in either synchronous or asynchronous manner.
 ///
@@ -11,7 +10,7 @@ import 'update_actions.dart';
 /// Unlike [Future] and [Stream], [Request] also provide method to read or write result in both synchronous or asynchronous way.
 ///
 /// [Request] is designed to be used with [BuildAsyncSnapshot] protocol.
-/// It can be consumed with [BuildAsyncSnapshot.buildRequest] as same as [Future] and [Stream].
+/// It can be consumed with [BuildAsyncSnapshotActions.buildRequest] as same as [Future] and [Stream].
 ///
 /// [Request] is abstract class, a derived class should be created for particular use case.
 /// Derived class should at least implement [load] method to explicitly specify how request should load data.
@@ -36,8 +35,8 @@ abstract class Request<T> {
 
   /// The stream that provides the latest result of current request
   ///
-  /// Widget can consume the data from the stream with [BuildAsyncSnapshot.buildStream]
-  /// Or use [BuildAsyncSnapshot.buildRequest] to consume the whole request.
+  /// Widget can consume the data from the stream with [BuildAsyncSnapshotActions.buildStream]
+  /// Or use [BuildAsyncSnapshotActions.buildRequest] to consume the whole request.
   Stream<T> get resultStream => _subject;
 
   /// Constructor of [Request].

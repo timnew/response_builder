@@ -4,29 +4,24 @@ import 'package:flutter/widgets.dart';
 
 import 'package:response_builder/response_builder.dart';
 
-/// Protocol that builds always-exist data from [ValueListenable]
+/// Actions that depends on Protocol [ValueListenable]
 extension BuildValueListenable<T> on BuildValue<T> {
   /// Build view for [ValueListenable] with [ValueListenableBuilder]
   ///
-  /// [key] specifies [StreamBuilder]'s key
-  Widget buildValueListenable(ValueListenable<T> listenable, {Key key}) =>
-      ValueListenableBuilder(
+  /// [key] specifies the key of [ValueListenableBuilder]
+  Widget buildValueListenable(ValueListenable<T> listenable, {Key key}) => ValueListenableBuilder(
         key: key,
         valueListenable: listenable,
-        builder: (BuildContext context, T value, _) =>
-            buildValue(context, value),
+        builder: (BuildContext context, T value, _) => buildValue(context, value),
       );
 }
 
-/// Protocol that builds 2-state data from [ResultNotifier], which is similar to [ValueListenable] but holds 2-state result.
-///
-/// [Result] from [package:async](https://pub.dev/packages/async) is used to represents 2-state data
+/// Actions that depends on Protocol [BuildResult]
 extension BuildResultListenable<T> on BuildResult<T> {
-  /// Build view for [ResultNotifier] with [ValueListenableBuilder]
+  /// Build view for [ResultNotifier]
   ///
-  /// [key] specifies [StreamBuilder]'s key
-  Widget buildResultListenable(ResultNotifier<T> listenable, {Key key}) =>
-      ValueListenableBuilder(
+  /// [key] specifies [ValueListenableBuilder]'s key
+  Widget buildResultListenable(ResultNotifier<T> listenable, {Key key}) => ValueListenableBuilder(
         key: key,
         valueListenable: listenable.asValueListenable(),
         builder: (BuildContext context, Result<T> value, _) {
@@ -40,29 +35,21 @@ extension BuildResultListenable<T> on BuildResult<T> {
 }
 
 extension BuildAsyncSnapshotActions<T> on BuildAsyncSnapshot<T> {
-  /// Build view for a [Future] with [FutureBuilder]
+  /// Build view for a [Future]
   ///
   /// [key] specifies [FutureBuilder]'s key
   /// [initialData] specifies [FutureBuilder]'s initial value
   Widget buildFuture(Future<T> future, {Key key, T initialData}) =>
-      FutureBuilder(
-          key: key,
-          future: future,
-          builder: buildAsyncSnapshot,
-          initialData: initialData);
+      FutureBuilder(key: key, future: future, builder: buildAsyncSnapshot, initialData: initialData);
 
-  /// Build view for a [Stream] with [StreamBuilder]
+  /// Build view for a [Stream]
   ///
   /// [key] specifies [StreamBuilder]'s key
   /// [initialData] specifies [StreamBuilder]'s initial value
   Widget buildStream(Stream<T> stream, {Key key, T initialData}) =>
-      StreamBuilder(
-          key: key,
-          stream: stream,
-          builder: buildAsyncSnapshot,
-          initialData: initialData);
+      StreamBuilder(key: key, stream: stream, builder: buildAsyncSnapshot, initialData: initialData);
 
-  /// Build view for a [Request] with [StreamBuilder]
+  /// Build view for a [Request]
   ///
   /// [key] specifies [StreamBuilder]'s key
   /// [initialData] specifies [StreamBuilder]'s initial value

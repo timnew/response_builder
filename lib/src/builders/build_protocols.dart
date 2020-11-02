@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-
-import 'default_build_actions.dart';
+import 'package:response_builder/response_builder.dart';
 
 /// Protocol that builds value
 ///
@@ -11,7 +10,7 @@ import 'default_build_actions.dart';
 /// * To build 2-state sync result from [ResultListenable], consider use [BuildResultListenable]
 /// * To build 3-state async result from [Request], [Future] or [Stream], consider use [BuildAsyncSnapshot]
 mixin BuildValue<T> {
-  /// Contract to to build view when [value[ is loaded
+  /// Contract to to build view when [value] is loaded
   ///
   /// Implementer should always implement this contract
   Widget buildValue(BuildContext context, T value);
