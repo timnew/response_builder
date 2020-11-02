@@ -44,7 +44,8 @@ abstract class ResultListenable<T> implements Listenable {
   }
 
   /// Wrap [ResultListenable] as [ValueListenable], so it can be be used with anything supports [ValueListenable].
-  ValueListenable<Result<T>> asValueListenable() => _ValueListenableWrapper(this);
+  ValueListenable<Result<T>> asValueListenable() =>
+      _ValueListenableWrapper(this);
 }
 
 /// [ResultNotifier] is just like [ValueNotifier] but support to hold error along with value.
@@ -60,7 +61,8 @@ class ResultNotifier<T> extends ChangeNotifier with ResultListenable<T> {
 
   /// Create [ResultNotifier] with [error]
   /// [stackTrace] is optional, will be `null` if not specified.
-  ResultNotifier.error(Object error, [StackTrace stackTrace]) : this._(Result.error(error, stackTrace));
+  ResultNotifier.error(Object error, [StackTrace stackTrace])
+      : this._(Result.error(error, stackTrace));
 
   ResultNotifier._(this._result);
 
@@ -144,10 +146,12 @@ class _ValueListenableWrapper<T> implements ValueListenable<Result<T>> {
   _ValueListenableWrapper(this._listenable);
 
   @override
-  void addListener(void Function() listener) => _listenable.addListener(listener);
+  void addListener(void Function() listener) =>
+      _listenable.addListener(listener);
 
   @override
-  void removeListener(void Function() listener) => _listenable.removeListener(listener);
+  void removeListener(void Function() listener) =>
+      _listenable.removeListener(listener);
 
   @override
   Result<T> get value => _listenable.result;
