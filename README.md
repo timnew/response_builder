@@ -496,6 +496,16 @@ Similar to `BuildResultListenable`, built-in `ValueListenable` can be consumed w
 
 **HINT**  `WithEmptyValue`  can be used with`BuildValueListenable` to handle empty content too.
 
+## Terminologies
+
+* **Data** - Generic word for data, it could be `Value`, 2-state `Result` or 3-state `AsyncResult`
+* **Result** - synchronous 2-state data, which can be `Value` or `Error`
+* **AsyncResult** - asynchronous 3-state data, which can be `Value`, `Error`, or `Loading`
+* **Value** - Basic type of data, it contains information that needed to build UI
+* **Error** - A special type of data that indicates data is available to be access in synchronous way, but something went wrong, it is exclusive to `Value`, used by `Result` and `AsyncResult`
+* **Loading** - A special type of data that indicates data is not yet available to be accessed synchronously, it would eventually become either `Value` or `Error`, used by `AsyncResult`
+* **Empty** - A special type of `Value`, which is a legal, but contains no information, such as an empty list or empty map.
+
 ## License
 
 The MIT License (MIT)
