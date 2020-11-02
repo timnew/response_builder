@@ -17,7 +17,8 @@ class TestWidget extends StatelessWidget with WithEmptyData<String> {
       );
 
   @override
-  Widget buildContent(BuildContext context, String content) => ContentWidget(content);
+  Widget buildContent(BuildContext context, String content) =>
+      ContentWidget(content);
 
   @override
   Widget buildEmpty(BuildContext context, String emptyContent) => EmptyWidget();
@@ -26,7 +27,8 @@ class TestWidget extends StatelessWidget with WithEmptyData<String> {
   bool checkIsDataEmpty(String data) => data.isEmpty;
 }
 
-class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<String>, WithEmptyData<String> {
+class TestFutureWithEmptyWidget extends StatelessWidget
+    with BuildAsyncResult<String>, WithEmptyData<String> {
   final completer = Completer<String>();
 
   @override
@@ -35,7 +37,8 @@ class TestFutureWithEmptyWidget extends StatelessWidget with BuildAsyncResult<St
       );
 
   @override
-  Widget buildContent(BuildContext context, String content) => ContentWidget(content);
+  Widget buildContent(BuildContext context, String content) =>
+      ContentWidget(content);
 
   @override
   Widget buildEmpty(BuildContext context, String emptyContent) => EmptyWidget();
@@ -55,7 +58,8 @@ class DefaultBehaviorWidget<T> extends StatelessWidget with WithEmptyData<T> {
       );
 
   @override
-  Widget buildContent(BuildContext context, T content) => ContentWidget(content.toString());
+  Widget buildContent(BuildContext context, T content) =>
+      ContentWidget(content.toString());
 }
 
 void main() {
@@ -206,11 +210,13 @@ void main() {
 
       group("unsupported", () {
         testWidgets("Render content", (WidgetTester tester) async {
-          expect(tester.pumpWidget(DefaultBehaviorWidget("data")), throwsUnsupportedError);
+          expect(tester.pumpWidget(DefaultBehaviorWidget("data")),
+              throwsUnsupportedError);
         }, skip: true);
 
         testWidgets("Render empty", (WidgetTester tester) async {
-          expect(tester.pumpWidget(DefaultBehaviorWidget("")), throwsUnsupportedError);
+          expect(tester.pumpWidget(DefaultBehaviorWidget("")),
+              throwsUnsupportedError);
         }, skip: true);
 
         testWidgets("Render null", (WidgetTester tester) async {
@@ -219,7 +225,9 @@ void main() {
           findContentWidget().shouldFindNothing();
           findInTestScope.findChild<Container>().shouldFindOne();
         });
-      }, skip: "error is thrown in build phrase, which is caught by future of pumpWidget");
+      },
+          skip:
+              "error is thrown in build phrase, which is caught by future of pumpWidget");
     });
   });
 }

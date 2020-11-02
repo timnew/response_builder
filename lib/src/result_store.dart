@@ -28,7 +28,8 @@ class ResultStore<T> {
 
   /// Create [ResultStore] with [error]
   /// [stackTrace] is optional, will be `null` if not specified.
-  ResultStore.error(Object error, [StackTrace stackTrace]) : _notifier = ValueNotifier(Result.error(error, stackTrace));
+  ResultStore.error(Object error, [StackTrace stackTrace])
+      : _notifier = ValueNotifier(Result.error(error, stackTrace));
 
   /// Get the 2-state result
   Result<T> get result => _notifier.value;

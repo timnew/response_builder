@@ -9,7 +9,8 @@ class FormData {
   FormData(Map<String, String> initialValues)
       : fields = Map.fromIterables(
           initialValues.keys, // field keys
-          initialValues.values.map((initialValue) => ResultStore(initialValue)), // wrap initial with ResultStore
+          initialValues.values.map((initialValue) =>
+              ResultStore(initialValue)), // wrap initial with ResultStore
         );
 
   void invalidField(String fieldName) {
@@ -25,7 +26,8 @@ class FormFieldView extends StatelessWidget with BuildResultListenable<String> {
   final String fieldName;
   final ResultStore<String> fieldStore;
 
-  const FormFieldView({Key key, this.fieldName, this.fieldStore}) : super(key: key);
+  const FormFieldView({Key key, this.fieldName, this.fieldStore})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

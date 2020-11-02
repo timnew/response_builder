@@ -90,7 +90,8 @@ void main() {
       test("update value throws error", () {
         final store = ResultStore<String>(value);
 
-        expect(() => store.updateValue((current) => throw error), throwsA(same(error)));
+        expect(() => store.updateValue((current) => throw error),
+            throwsA(same(error)));
       });
 
       test("update value throws non error", () {

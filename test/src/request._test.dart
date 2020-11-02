@@ -15,7 +15,10 @@ class TestRequest extends Request<String> {
     bool loadOnListened = true,
     bool initialLoadQuietly: false,
   })  : createFuture = factory ?? (() => Future.value("value")),
-        super(initialValue: initialValue, loadOnListened: loadOnListened, initialLoadQuietly: initialLoadQuietly);
+        super(
+            initialValue: initialValue,
+            loadOnListened: loadOnListened,
+            initialLoadQuietly: initialLoadQuietly);
 
   FutureOr<String> load() => createFuture();
 }
@@ -254,7 +257,10 @@ void main() {
       );
 
       test("do not load on listen", () async {
-        final request = TestRequest(factory: () => Future.value(newValue), initialValue: value, loadOnListened: false);
+        final request = TestRequest(
+            factory: () => Future.value(newValue),
+            initialValue: value,
+            loadOnListened: false);
 
         expect(request.isWaiting, isFalse);
         expect(request.ensuredCurrentData, value);
@@ -817,7 +823,8 @@ void main() {
 
         expect(request.ensuredCurrentData, value);
 
-        expect(() => request.updateValue((current) => throw error), throwsA(same(error)));
+        expect(() => request.updateValue((current) => throw error),
+            throwsA(same(error)));
       });
 
       test("should throws when updates on exception", () {
@@ -825,7 +832,8 @@ void main() {
 
         request.putError(exception);
 
-        expect(() => request.updateValue((current) => "updated $current"), throwsStateError);
+        expect(() => request.updateValue((current) => "updated $current"),
+            throwsStateError);
       });
 
       test("should throws when updates on waiting", () {
@@ -833,7 +841,8 @@ void main() {
 
         request.markAsWaiting();
 
-        expect(() => request.updateValue((current) => "updated $current"), throwsStateError);
+        expect(() => request.updateValue((current) => "updated $current"),
+            throwsStateError);
       });
     });
 
@@ -979,7 +988,8 @@ void main() {
 
         await waitStream();
 
-        expect(tester.formatChanges(), ["V:null", "V:$value", "V:null", "V:$newValue"]);
+        expect(tester.formatChanges(),
+            ["V:null", "V:$value", "V:null", "V:$newValue"]);
       });
 
       test("execute should publish exception to stream", () async {
@@ -992,7 +1002,8 @@ void main() {
 
         await waitStream();
 
-        expect(tester.formatChanges(), ["V:null", "V:$value", "V:null", "E:$exception"]);
+        expect(tester.formatChanges(),
+            ["V:null", "V:$value", "V:null", "E:$exception"]);
       });
 
       test("putValue should publish to stream", () async {

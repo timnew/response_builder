@@ -27,10 +27,12 @@ class StreamTester<T> {
     changes.add(Result.error(error, stackTrace));
   }
 
-  List<T> changeAsValues() => changes.map((e) => e.asValue.value).toList(growable: false);
+  List<T> changeAsValues() =>
+      changes.map((e) => e.asValue.value).toList(growable: false);
 
-  List<String> _formatResults(List<Result<T>> results) =>
-      results.map((e) => e.isValue ? "V:${e.asValue.value}" : "E:${e.asError.error}").toList(growable: false);
+  List<String> _formatResults(List<Result<T>> results) => results
+      .map((e) => e.isValue ? "V:${e.asValue.value}" : "E:${e.asError.error}")
+      .toList(growable: false);
 
   List<String> formatChanges() => _formatResults(changes);
 }

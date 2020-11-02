@@ -16,11 +16,13 @@ class TestWidget extends StatelessWidget with BuildWithBuilder {
       );
 }
 
-class AnotherTestWidget extends StatelessWidget with BuildWithBuilderInLocalContext {
+class AnotherTestWidget extends StatelessWidget
+    with BuildWithBuilderInLocalContext {
   final TransitionBuilder builder;
   final Widget child;
 
-  const AnotherTestWidget({Key key, this.builder, this.child}) : super(key: key);
+  const AnotherTestWidget({Key key, this.builder, this.child})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) => TestBench(
@@ -30,7 +32,8 @@ class AnotherTestWidget extends StatelessWidget with BuildWithBuilderInLocalCont
 
 void main() {
   group("BuildWithBuilder", () {
-    testWidgets("BuildWithBuilder should build with only builder", (WidgetTester tester) async {
+    testWidgets("BuildWithBuilder should build with only builder",
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         TestWidget(
           builder: (context, child) => ContentWidget("data"),
@@ -40,7 +43,8 @@ void main() {
       findContentWidget("data").shouldFindOne();
     });
 
-    testWidgets("BuildWithBuilder should build with only child", (WidgetTester tester) async {
+    testWidgets("BuildWithBuilder should build with only child",
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         TestWidget(
           child: ContentWidget("data"),
@@ -50,7 +54,8 @@ void main() {
       findContentWidget("data").shouldFindOne();
     });
 
-    testWidgets("BuildWithBuilder should build with both builder and child", (WidgetTester tester) async {
+    testWidgets("BuildWithBuilder should build with both builder and child",
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         TestWidget(
           builder: (context, child) => Container(child: child),
@@ -63,17 +68,22 @@ void main() {
   });
 
   group("BuildWithBuilderInLocalContext", () {
-    testWidgets("BuildWithBuilder should build with only builder", (WidgetTester tester) async {
+    testWidgets("BuildWithBuilder should build with only builder",
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         AnotherTestWidget(
           builder: (context, child) => ContentWidget("data"),
         ),
       );
 
-      findInTestScope.findChild<Builder>().findChildBy(findContentWidget("data")).shouldFindOne();
+      findInTestScope
+          .findChild<Builder>()
+          .findChildBy(findContentWidget("data"))
+          .shouldFindOne();
     });
 
-    testWidgets("BuildWithBuilder should build with only child", (WidgetTester tester) async {
+    testWidgets("BuildWithBuilder should build with only child",
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         AnotherTestWidget(
           child: ContentWidget("data"),
@@ -84,7 +94,8 @@ void main() {
       findInTestScope.findChildBy(findContentWidget("data")).shouldFindOne();
     });
 
-    testWidgets("BuildWithBuilder should build with both builder and child", (WidgetTester tester) async {
+    testWidgets("BuildWithBuilder should build with both builder and child",
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         AnotherTestWidget(
           builder: (context, child) => Container(child: child),

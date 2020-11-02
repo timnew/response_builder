@@ -44,7 +44,8 @@ class MySearchRequest extends Request<List<SearchItem>> {
   }
 }
 
-class SearchResultView extends StatelessWidget with BuildAsyncResult<List<SearchItem>> {
+class SearchResultView extends StatelessWidget
+    with BuildAsyncResult<List<SearchItem>> {
   final MySearchRequest request;
 
   SearchResultView(this.request);
@@ -79,7 +80,8 @@ class SearchResultView extends StatelessWidget with BuildAsyncResult<List<Search
   Widget buildData(BuildContext context, List<SearchItem> data) {
     return ListView.builder(
       itemCount: request.ensuredCurrentData.length,
-      itemBuilder: (context, index) => SearchItemView(request.ensuredCurrentData[index]),
+      itemBuilder: (context, index) =>
+          SearchItemView(request.ensuredCurrentData[index]),
     );
   }
 }

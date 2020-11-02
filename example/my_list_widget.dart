@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:response_builder/response_builder.dart';
 
-class MyListWidget extends StatelessWidget with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
+class MyListWidget extends StatelessWidget
+    with BuildAsyncResult<List<String>>, WithEmptyData<List<String>> {
   final Future<List<String>> future;
 
   const MyListWidget({Key key, this.future}) : super(key: key);
