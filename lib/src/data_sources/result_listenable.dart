@@ -1,7 +1,7 @@
 import 'package:async/async.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:response_builder/src/update_actions.dart';
+import 'package:response_builder/src/data_sources/update_actions.dart';
 
 /// An interface for subclasses of [Listenable] that expose a [result].
 ///

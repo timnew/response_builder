@@ -116,7 +116,7 @@ void main() {
 
         // loading
         await tester.runAsync(() async {
-          request.markAsWaiting();
+          request.markAsLoading();
         });
         await tester.pump();
 
@@ -137,7 +137,7 @@ void main() {
         findErrorWidget().shouldFindNothing();
 
         await tester.runAsync(() async {
-          request.markAsWaiting();
+          request.markAsLoading();
         });
         await tester.pump();
 

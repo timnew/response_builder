@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:response_builder/response_builder.dart';
 
-import '../test_tools/stream_tester.dart';
+import '../../test_tools/stream_tester.dart';
 
 class TestRequest extends Request<String> {
   final FutureOr<String> Function() createFuture;
@@ -106,7 +106,7 @@ void main() {
       test("holds waiting", () async {
         final request = TestRequest(loadOnListened: false);
 
-        request.markAsWaiting();
+        request.markAsLoading();
 
         expect(request.hasResult, isFalse);
         expect(request.isLoading, isTrue);
@@ -767,7 +767,7 @@ void main() {
         final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
-        request.markAsWaiting();
+        request.markAsLoading();
         request.putValue(value);
 
         expect(await future, value);
@@ -786,7 +786,7 @@ void main() {
         final request = TestRequest(loadOnListened: false);
         final future = request.firstResult;
 
-        request.markAsWaiting();
+        request.markAsLoading();
         request.putError(exception);
 
         expect(future, throwsException);
@@ -839,7 +839,7 @@ void main() {
       test("should throws when updates on waiting", () {
         final request = TestRequest(initialValue: value, loadOnListened: false);
 
-        request.markAsWaiting();
+        request.markAsLoading();
 
         expect(() => request.updateValue((current) => "updated $current"),
             throwsStateError);
@@ -931,7 +931,7 @@ void main() {
       test("should throws when updates on waiting", () {
         final request = TestRequest(initialValue: value, loadOnListened: false);
 
-        request.markAsWaiting();
+        request.markAsLoading();
 
         expect(
           () async => await request.updateValueAsync(

@@ -110,7 +110,7 @@ abstract class Request<T> {
   Future _execute(dynamic futureOrAction, bool quiet) async {
     assert(futureOrAction is FutureOr<T> || futureOrAction is FutureOr<T> Function());
 
-    if (!quiet) markAsWaiting();
+    if (!quiet) markAsLoading();
 
     try {
       final future = futureOrAction is Future ? futureOrAction : futureOrAction();
@@ -134,12 +134,12 @@ abstract class Request<T> {
     _subject.addError(error, stackTrace);
   }
 
-  /// Update request as waiting synchronously
-  void markAsWaiting() {
+  /// Update request as loading synchronously
+  void markAsLoading() {
     _subject.add(null);
   }
 
-  /// Check whether request is in waiting state
+  /// Check whether request is in loading state
   ///
   /// [isLoading] is exclusive to [hasResult], [hasValue] and [hasError]
   bool get isLoading => _subject.hasValue && currentData == null;
@@ -153,13 +153,13 @@ abstract class Request<T> {
   /// Check whether request has a data
   ///
   /// Check whether current is error with [hasError]
-  /// Check whether request is waiting with [isLoading]
+  /// Check whether request is loading with [isLoading]
   bool get hasValue => _subject.hasValue && currentData != null;
 
   /// Check whether request has a error
   ///
   /// Check whether current is data with [hasValue]
-  /// Check whether request is waiting with [isLoading]
+  /// Check whether request is loading with [isLoading]
   bool get hasError => _subject.hasError;
 
   /// Get latest data.

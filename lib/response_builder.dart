@@ -19,5 +19,5 @@ export 'src/builders/default_build_actions.dart';
 export 'src/builders/build_protocols.dart';
 export 'src/builders/build_actions.dart';
 export 'src/builders/build_with_builder.dart';
-export 'src/request.dart';
-export 'src/result_listenable.dart';
+export 'src/data_sources/request.dart';
+export 'src/data_sources/result_listenable.dart';
