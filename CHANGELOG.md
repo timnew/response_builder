@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## [0.0.4] - 2020-11-12
+
+* Add `HistoryValueNotifier`
+
 ## [0.0.3] - 2020-11-03
 
 * Fixed lint issues
