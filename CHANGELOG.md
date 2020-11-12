@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## [0.0.5] - 2020-11-12
+
+* Export `HistoryValueNotifier`
+
 ## [0.0.4] - 2020-11-12
 
 * Add `HistoryValueNotifier`
