@@ -437,3 +437,19 @@ class FormFieldView extends StatelessWidget with BuildResult<String> {
   }
 }
 ```
+
+## Implement Undo and Redo with `HistoryValueNotifier`
+
+```dart
+// Create a HistoryValueNotifier that remembers past 30 changes
+final userInputValue = HistoryValueNotifier<String>(31, initialValue: "");
+
+// Use userInputValue as normal `ValueListenable`
+buildValueListener(userInput);
+
+// Undo last change
+userInputValue.undo();
+
+// Redo last user change
+userInputValue.redo();
+```

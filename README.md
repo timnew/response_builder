@@ -626,6 +626,24 @@ Similar to `BuildResultListenable`, built-in `ValueListenable` can be consumed w
 
 **HINT**  `WithEmptyValue`  can be used with`BuildValueListenable` to handle empty content too.
 
+## Implement Undo and Redo with `HistoryValueNotifier`
+
+`HistoryValueNotifier` is an implementation of `ValueListenable<T>` with `undo` and `redo` support built-in.
+
+```dart
+// Create a HistoryValueNotifier that remembers past 30 changes
+final userInputValue = HistoryValueNotifier<String>(31, initialValue: "");
+
+// Use userInputValue as normal `ValueListenable`
+buildValueListener(userInput);
+
+// Undo last change
+userInputValue.undo();
+
+// Redo last user change
+userInputValue.redo();
+```
+
 ## License
 
 The MIT License (MIT)
