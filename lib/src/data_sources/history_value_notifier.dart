@@ -9,8 +9,7 @@ import 'package:flutter/foundation.dart';
 ///
 /// Unlike [ValueNotifier], [HistoryValueNotifier] is allowed to be created without initial value
 /// [HistoryValueNotifier.value] returns `null` before any value is given
-class HistoryValueNotifier<T> extends ChangeNotifier
-    implements ValueListenable<T> {
+class HistoryValueNotifier<T> extends ChangeNotifier implements ValueListenable<T> {
   /// The number of the history changes that [HistoryValueNotifier] can keep
   final int capacity;
   final ListQueue<T> _queue;
@@ -102,6 +101,11 @@ class HistoryValueNotifier<T> extends ChangeNotifier
     return value;
   }
 
+  /// Returns [undo] when [canUndo] returns 'true' otherwise returns 'null`
+  ///
+  /// It can be useful when if wish to disable the button if [canUndo] is `false`
+  VoidCallback get undoCallback => canUndo ? undo : null;
+
   /// How many times of [redo] operations can be done
   int get redoCount => historyLength - _current - 1;
 
@@ -120,4 +124,9 @@ class HistoryValueNotifier<T> extends ChangeNotifier
     notifyListeners();
     return value;
   }
+
+  /// Returns [redo] when [canRedo] returns 'true' otherwise returns 'null`
+  ///
+  /// It can be useful when if wish to disable the button if [canRedo] is `false`
+  VoidCallback get redoCallback => canRedo ? redo : null;
 }

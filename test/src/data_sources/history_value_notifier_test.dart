@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:response_builder/src/data_sources/history_value_notifier.dart';
 
@@ -80,10 +81,14 @@ void main() {
         final listener = ValueListenableTester(notifier);
 
         expect(notifier.historyLength, 0);
+
         expect(notifier.undoCount, 0);
         expect(notifier.canUndo, false);
+        expect(notifier.undoCallback, isNull);
+
         expect(notifier.redoCount, 0);
         expect(notifier.canRedo, false);
+        expect(notifier.redoCallback, isNull);
 
         notifier.value = 1;
 
@@ -93,8 +98,10 @@ void main() {
         expect(notifier.historyLength, 1);
         expect(notifier.undoCount, 0);
         expect(notifier.canUndo, false);
+        expect(notifier.undoCallback, isNull);
         expect(notifier.redoCount, 0);
         expect(notifier.canRedo, false);
+        expect(notifier.redoCallback, isNull);
 
         notifier.value = 2;
 
@@ -104,8 +111,10 @@ void main() {
         expect(notifier.historyLength, 2);
         expect(notifier.undoCount, 1);
         expect(notifier.canUndo, true);
+        expect(notifier.undoCallback, isA<VoidCallback>());
         expect(notifier.redoCount, 0);
         expect(notifier.canRedo, false);
+        expect(notifier.redoCallback, isNull);
 
         expect(notifier.undo(), 1);
 
@@ -115,8 +124,10 @@ void main() {
         expect(notifier.historyLength, 2);
         expect(notifier.undoCount, 0);
         expect(notifier.canUndo, false);
+        expect(notifier.undoCallback, isNull);
         expect(notifier.redoCount, 1);
         expect(notifier.canRedo, true);
+        expect(notifier.redoCallback, isA<VoidCallback>());
 
         expect(notifier.redo(), 2);
 
@@ -126,8 +137,10 @@ void main() {
         expect(notifier.historyLength, 2);
         expect(notifier.undoCount, 1);
         expect(notifier.canUndo, true);
+        expect(notifier.undoCallback, isA<VoidCallback>());
         expect(notifier.redoCount, 0);
         expect(notifier.canRedo, false);
+        expect(notifier.redoCallback, isNull);
       });
 
       test("undo does nothing when undo is not available", () {
@@ -136,6 +149,7 @@ void main() {
 
         expect(notifier.value, 100);
         expect(notifier.canUndo, false);
+        expect(notifier.undoCallback, isNull);
 
         expect(notifier.undo(), 100);
         expect(listener.pastValues, isEmpty);
@@ -147,6 +161,7 @@ void main() {
 
         expect(notifier.value, 100);
         expect(notifier.canRedo, false);
+        expect(notifier.redoCallback, isNull);
 
         expect(notifier.redo(), 100);
         expect(listener.pastValues, isEmpty);
@@ -212,9 +227,7 @@ void main() {
         expect(notifier.redoCount, 0);
       });
 
-      test(
-          "purge future changes when value changed after undo for off record change",
-          () {
+      test("purge future changes when value changed after undo for off record change", () {
         final notifier = HistoryValueNotifier<int>(4);
 
         notifier.putValue(1);
