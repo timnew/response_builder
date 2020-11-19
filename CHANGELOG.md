@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## [0.0.6] - 2020-11-20
+
+* Added `HistoryValueNotifier.redoCallback` and `HistoryValueNotifier.undoCallback`
+
 ## [0.0.5] - 2020-11-12
 
 * Export `HistoryValueNotifier`
