@@ -2,7 +2,7 @@
 
 [![Star this Repo](https://img.shields.io/github/stars/timnew/response_builder.svg?style=flat-square)](https://github.com/timnew/response_builder)
 [![Pub Package](https://img.shields.io/pub/v/response_builder.svg?style=flat-square)](https://pub.dev/packages/response_builder)
-[![Build Status](https://img.shields.io/github/workflow/status/timnew/response_builder/Run-Test)](https://github.com/timnew/response_builder)
+[![Build Status](https://img.shields.io/github/workflow/status/timnew/response_builder/Run-Test)](https://github.com/timnew/response_builder/actions?query=workflow%3ARun-Test)
 
 ## Why create this library
 
